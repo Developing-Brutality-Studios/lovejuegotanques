@@ -1,4 +1,4 @@
-local bolaL={temud=require "../modosdejuego/prron",entidades=require "../entidades/entidadesBol",mapa=require "../mapa/mapaTS",puntosEquipos={},mdx=600,mdy=300,ancho=1200,alto=600}
+local bolaL={entidades=require "../entidades/entidadesBol",mapa=require "../mapa/mapaTS",puntosEquipos={},mdx=600,mdy=300,ancho=1200,alto=600}
 --corregir a nuevos parametros
 local ssangulo=math.rad(90)
 local ancho=0
@@ -30,7 +30,6 @@ function bolaL.new(ancc,altt)
     inputDos.mina="o"
     ancho=bolaL.mapa.tablamapa.width*64
     alto=bolaL.mapa.tablamapa.height*64
-    bolaL.temud.new(bolaL.mapa)
     for i=1,#bolaL.mapa.puntos do 
        if bolaL.mapa.puntos[i].val==1 then
          bolaL.entidades.agregarSpawn(bolaL.mapa.puntos[i].x,bolaL.mapa.puntos[i].y)
@@ -49,6 +48,8 @@ end
 
 function bolaL.dibujar()
 love.graphics.setColor(255,255,255,1)
+love.graphics.print(tostring(bolaL.entidades.ancho),50,50)
+love.graphics.print(tostring(bolaL.entidades.alto),50,50)
 bolaL.camara(1,1,nil)
 end
 
@@ -68,7 +69,7 @@ function bolaL.camara(equipo,jugador,canvasss)
     end
     bolaL.mapa.dibujar(xsx,ysy,bolaL.ancho,bolaL.alto,canvasss)
     bolaL.entidades.dibujar(xsx,ysy,canvasss,bolaL.ancho,bolaL.alto)
-    bolaL.temud.dibujar(xsx,ysy)
+    
     
 end
 --Mantiene a la entidad dentro de los limites del mapa

@@ -14,8 +14,8 @@ ifr=nil
 function love.load()
     love.window.setTitle("Tanks")
     xw,yw= love.window.getDesktopDimensions(1)
-    love.window.setMode(xw,yw,{fullscreen=true,fullscreentype="exclusive"})
-    juego.new(4,xw,yw)
+    love.window.setMode(640,360,{fullscreen=true,fullscreentype="exclusive"})
+    juego.new(4,640,360)
 end
 
 function love.update(dt)

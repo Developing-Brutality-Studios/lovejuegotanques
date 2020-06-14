@@ -603,8 +603,8 @@ function entidadesBol.dibujar(eex,eey,canv,xa,ya)
             end
     end
 
-    love.graphics.print(tostring(entidadesBol.puntuaciones[1].puntos),50,500)
-    love.graphics.print(tostring(entidadesBol.puntuaciones[2].puntos),50,550)
+    --love.graphics.print(tostring(entidadesBol.puntuaciones[1].puntos),50,500)
+    --love.graphics.print(tostring(entidadesBol.puntuaciones[2].puntos),50,550)
 
     love.graphics.setCanvas()
 end  
