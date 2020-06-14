@@ -11,9 +11,40 @@ local particulas=love.graphics.newImage("//assets/explosion3.png")
 local caja=love.graphics.newImage("//assets/crateMetal.png")
 local cajam=love.graphics.newImage("//assets/crateWood.png")
 local llantas=love.graphics.newImage("//assets/tracksLarge.png")
+local mousepressed = false
+require("andralog")
+local vjoystick = nil
 function entidadesBol.agregarEquipo()
 local equipo={}
 table.insert(entidadesBol.equipos, equipo)
+end
+
+--newAnalog(center's x, center's y, analog's radius, Button's radius, Deadzone's factor (from 0 to 1))
+
+function entidadesBol.inicializarVJ(ancho,alto)
+    vjoystick=newAnalog(ancho-alto/5,alto-alto/5,alto/4,alto/10,20/100)
+end
+
+function love.touchPressed(id, x, y, pressure)
+	vjoystick.touchPressed(id, x, y, pressure)
+end
+
+function love.touchReleased(id, x, y, pressure)
+	vjoystick.touchReleased(id, x, y, pressure)
+end
+
+function love.touchMoved(id, x, y, pressure)
+	vjoystick.touchMoved(id, x, y, pressure)
+end
+
+function love.mousepressed(x, y, button)
+	love.touchPressed(1, x/love.graphics.getWidth(), y/love.graphics.getHeight(), 1)
+	mousepressed = true
+end
+
+function love.mousereleased(x, y, button)
+	love.touchReleased(1, x/love.graphics.getWidth(), y/love.graphics.getHeight(), 1)
+	mousepressed = false
 end
 
 function entidadesBol.agregarSpawn(spx,spy)
@@ -234,58 +265,122 @@ function entidadesBol.actualizarphy(dt)
     world:update(dt)
 end
 
-function entidadesBol.actualizarJugadores(dt)
-    --world:update(dt)
+function entidadesBol.actualizarJugadorTeclado(dt,pllayer)
+    pllayer.posY=pllayer.body:getY()
+    pllayer.posX=pllayer.body:getX()
+    pllayer.posY=pllayer.posY-pllayer.magnitud*math.sin(pllayer.angulo-ssangulo)*dt
+        pllayer.posX=pllayer.posX-pllayer.magnitud*math.cos(pllayer.angulo-ssangulo)*dt
+        --restar valores absolutos podria ser mejor
+        if pllayer.magnitud>0 then
+            pllayer.magnitud=pllayer.magnitud-pllayer.antvelocidad*dt
+        elseif pllayer.magnitud<0 then
+            pllayer.magnitud=pllayer.magnitud+pllayer.antvelocidad*dt
+        end
+        if love.keyboard.isDown(pllayer.input.adelante) then
+            pllayer.magnitud=pllayer.magnitud+pllayer.auvel*dt
+            if pllayer.magnitud>pllayer.velocidad then
+                pllayer.magnitud=pllayer.velocidad
+            end
+        elseif love.keyboard.isDown(pllayer.input.atras) then
+            pllayer.magnitud=pllayer.magnitud-pllayer.auvel*dt-20*dt
+            if pllayer.magnitud<-pllayer.velocidad then
+                pllayer.magnitud=-pllayer.velocidad
+            end
+        elseif love.keyboard.isDown(pllayer.input.izquierda) then
+            pllayer.angulo=pllayer.angulo-math.rad(100)*dt
+        elseif love.keyboard.isDown(pllayer.input.derecha) then
+            pllayer.angulo=pllayer.angulo+math.rad(100)*dt
+        end
+        if love.keyboard.isDown(pllayer.input.disparar) then
+            entidadesBol.disparar(pllayer)
+        end
+        if love.keyboard.isDown(pllayer.input.mina) then
+            entidadesBol.plantarMina(pllayer)
+        end
+        pllayer.energia=pllayer.energia+pllayer.ratio*dt
+        if pllayer.energia>pllayer.limite then
+            pllayer.energia=pllayer.limite
+        end
+        pllayer.eparticula=pllayer.eparticula+1*dt
+        if pllayer.eparticula>1 then
+            pllayer.eparticula=1
+        end
+        if pllayer.magnitud == pllayer.velocidad and pllayer.eparticula>=1 then
+            entidadesBol.añadirParticulas(pllayer,10)
+            pllayer.eparticula=pllayer.eparticula-9.4*dt
+        end
+        if pllayer.banderaa then
+            entidadesBol.puntuaciones[pllayer.equipo].puntos=entidadesBol.puntuaciones[pllayer.equipo].puntos+1*dt
+        end
+        pllayer.body:setX(pllayer.posX)
+        pllayer.body:setY(pllayer.posY)
+end
+
+function entidadesBol.actualizarJugadorMando(dt,pllayer,joy)
+    pllayer.posY=pllayer.body:getY()
+    pllayer.posX=pllayer.body:getX()
+    pllayer.posY=pllayer.posY-pllayer.magnitud*math.sin(pllayer.angulo-ssangulo)*dt
+        pllayer.posX=pllayer.posX-pllayer.magnitud*math.cos(pllayer.angulo-ssangulo)*dt
+        --restar valores absolutos podria ser mejor
+        if pllayer.magnitud>0 then
+            pllayer.magnitud=pllayer.magnitud-pllayer.antvelocidad*dt
+        elseif pllayer.magnitud<0 then
+            pllayer.magnitud=pllayer.magnitud+pllayer.antvelocidad*dt
+        end
+        if vjoystick.getY()<-0.5 then
+            pllayer.magnitud=pllayer.magnitud+pllayer.auvel*dt
+            if pllayer.magnitud>pllayer.velocidad then
+                pllayer.magnitud=pllayer.velocidad
+            end
+        elseif vjoystick.getY()>0.5 then
+            pllayer.magnitud=pllayer.magnitud-pllayer.auvel*dt-20*dt
+            if pllayer.magnitud<-pllayer.velocidad then
+                pllayer.magnitud=-pllayer.velocidad
+            end
+        elseif vjoystick.getX()<-0.50 then
+            pllayer.angulo=pllayer.angulo-math.rad(100)*dt
+        elseif vjoystick.getX()>0.5 then
+            pllayer.angulo=pllayer.angulo+math.rad(100)*dt
+        end
+        if love.keyboard.isDown(pllayer.input.disparar) then
+            entidadesBol.disparar(pllayer)
+        end
+        if love.keyboard.isDown(pllayer.input.mina) then
+            entidadesBol.plantarMina(pllayer)
+        end
+        pllayer.energia=pllayer.energia+pllayer.ratio*dt
+        if pllayer.energia>pllayer.limite then
+            pllayer.energia=pllayer.limite
+        end
+        pllayer.eparticula=pllayer.eparticula+1*dt
+        if pllayer.eparticula>1 then
+            pllayer.eparticula=1
+        end
+        if pllayer.magnitud == pllayer.velocidad and pllayer.eparticula>=1 then
+            entidadesBol.añadirParticulas(pllayer,10)
+            pllayer.eparticula=pllayer.eparticula-9.4*dt
+        end
+        if pllayer.banderaa then
+            entidadesBol.puntuaciones[pllayer.equipo].puntos=entidadesBol.puntuaciones[pllayer.equipo].puntos+1*dt
+        end
+        pllayer.body:setX(pllayer.posX)
+        pllayer.body:setY(pllayer.posY)
+end
+
+function entidadesBol.actualizarJugadores(dt,joys)
+    if mousepressed then
+		love.touchMoved(1, love.mouse.getX()/love.graphics.getWidth(), love.mouse.getY()/love.graphics.getHeight(), 1)
+	end
+    vjoystick.update(dt)
+    print(vjoystick.getY())
     entidadesBol.matarJugadores()
     for i=1,#entidadesBol.jugadores do
-        entidadesBol.jugadores[i].posY=entidadesBol.jugadores[i].body:getY()
-        entidadesBol.jugadores[i].posX=entidadesBol.jugadores[i].body:getX()
-        entidadesBol.jugadores[i].posY=entidadesBol.jugadores[i].posY-entidadesBol.jugadores[i].magnitud*math.sin(entidadesBol.jugadores[i].angulo-ssangulo)*dt
-        entidadesBol.jugadores[i].posX=entidadesBol.jugadores[i].posX-entidadesBol.jugadores[i].magnitud*math.cos(entidadesBol.jugadores[i].angulo-ssangulo)*dt
-        --restar valores absolutos podria ser mejor
-        if entidadesBol.jugadores[i].magnitud>0 then
-            entidadesBol.jugadores[i].magnitud=entidadesBol.jugadores[i].magnitud-entidadesBol.jugadores[i].antvelocidad*dt
-        elseif entidadesBol.jugadores[i].magnitud<0 then
-            entidadesBol.jugadores[i].magnitud=entidadesBol.jugadores[i].magnitud+entidadesBol.jugadores[i].antvelocidad*dt
+        if entidadesBol.jugadores[i].input.joystick then
+            entidadesBol.actualizarJugadorMando(dt,entidadesBol.jugadores[i])
+        else
+            entidadesBol.actualizarJugadorTeclado(dt,entidadesBol.jugadores[i])
+            --print(joys[1]:getAxis(1))
         end
-        if love.keyboard.isDown(entidadesBol.jugadores[i].input.adelante) then
-            entidadesBol.jugadores[i].magnitud=entidadesBol.jugadores[i].magnitud+entidadesBol.jugadores[i].auvel*dt
-            if entidadesBol.jugadores[i].magnitud>entidadesBol.jugadores[i].velocidad then
-                entidadesBol.jugadores[i].magnitud=entidadesBol.jugadores[i].velocidad
-            end
-        elseif love.keyboard.isDown(entidadesBol.jugadores[i].input.atras) then
-            entidadesBol.jugadores[i].magnitud=entidadesBol.jugadores[i].magnitud-entidadesBol.jugadores[i].auvel*dt-20*dt
-            if entidadesBol.jugadores[i].magnitud<-entidadesBol.jugadores[i].velocidad then
-                entidadesBol.jugadores[i].magnitud=-entidadesBol.jugadores[i].velocidad
-            end
-        elseif love.keyboard.isDown(entidadesBol.jugadores[i].input.izquierda) then
-            entidadesBol.jugadores[i].angulo=entidadesBol.jugadores[i].angulo-math.rad(100)*dt
-        elseif love.keyboard.isDown(entidadesBol.jugadores[i].input.derecha) then
-            entidadesBol.jugadores[i].angulo=entidadesBol.jugadores[i].angulo+math.rad(100)*dt
-        end
-        if love.keyboard.isDown(entidadesBol.jugadores[i].input.disparar) then
-            entidadesBol.disparar(entidadesBol.jugadores[i])
-        end
-        if love.keyboard.isDown(entidadesBol.jugadores[i].input.mina) then
-            entidadesBol.plantarMina(entidadesBol.jugadores[i])
-        end
-        entidadesBol.jugadores[i].energia=entidadesBol.jugadores[i].energia+entidadesBol.jugadores[i].ratio*dt
-        if entidadesBol.jugadores[i].energia>entidadesBol.jugadores[i].limite then
-            entidadesBol.jugadores[i].energia=entidadesBol.jugadores[i].limite
-        end
-        entidadesBol.jugadores[i].eparticula=entidadesBol.jugadores[i].eparticula+1*dt
-        if entidadesBol.jugadores[i].eparticula>1 then
-            entidadesBol.jugadores[i].eparticula=1
-        end
-        if entidadesBol.jugadores[i].magnitud == entidadesBol.jugadores[i].velocidad and entidadesBol.jugadores[i].eparticula>=1 then
-            entidadesBol.añadirParticulas(entidadesBol.jugadores[i],10)
-            entidadesBol.jugadores[i].eparticula=entidadesBol.jugadores[i].eparticula-9.4*dt
-        end
-        if entidadesBol.jugadores[i].banderaa then
-            entidadesBol.puntuaciones[entidadesBol.jugadores[i].equipo].puntos=entidadesBol.puntuaciones[entidadesBol.jugadores[i].equipo].puntos+1*dt
-        end
-        entidadesBol.jugadores[i].body:setX(entidadesBol.jugadores[i].posX)
-        entidadesBol.jugadores[i].body:setY(entidadesBol.jugadores[i].posY)
     end
 end
 function entidadesBol.añadirParticulas(jugadorr,duracion)
@@ -439,6 +534,12 @@ end
 
 function entidadesBol.dibujar(eex,eey,canv,xa,ya)
     --dibuja a los proyectiles
+    vjoystick.draw()
+    if mousepressed then
+		love.graphics.setColor(0, 0, 255, 0.5)
+		love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 8, 32)
+	end
+	love.graphics.setColor(255, 255, 255, 1)
     if canv~=nil then
         love.graphics.setCanvas(canv)
     end
