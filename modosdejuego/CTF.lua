@@ -9,7 +9,7 @@ function ctf.new()
     ctf.mapa.new("../mapas/capturarlabandera","//assets/terrainTiles_default.png")
     ancho=ctf.mapa.tablamapa.width*64
     alto=ctf.mapa.tablamapa.height*64
-    ctf.temud.new(ctf.mapa)
+    ctf.temud.new(ctf.mapa,1200,600)
     for i=1,#ctf.mapa.puntos do 
        if ctf.mapa.puntos[i].val==1 then
          ctf.entidades.agregarSpawn(ctf.mapa.puntos[i].x,ctf.mapa.puntos[i].y)
