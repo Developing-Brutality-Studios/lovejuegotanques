@@ -1,4 +1,4 @@
-local bolaL={temud=require "../modosdejuego/prron",entidades=require "../entidades/entidadesBol",mapa=require "../mapa/mapaTS",puntosEquipos={},mdx=600,mdy=300,ancho=1200,alto=600,hud=require("../nohud")}
+
 --corregir a nuevos parametros
 local ssangulo=math.rad(90)
 local ancho=0
@@ -82,7 +82,7 @@ end
 
 end
 
-function bolaL.inputP(dt,jugador,avanzar,retroceder,izquierda,derecha,disparar,mina)
+function bolaL.inputP(dt,jugador,avanzar,retroceder,izquierda,derecha,disparar,mina,pusa)
     if love.keyboard.isDown(avanzar) then
         bolaL.entidades.jugadores[jugador].posY=bolaL.entidades.jugadores[jugador].posY-bolaL.entidades.jugadores[jugador].magnitud*math.sin(bolaL.entidades.jugadores[jugador].angulo-ssangulo)*dt
         bolaL.entidades.jugadores[jugador].posX=bolaL.entidades.jugadores[jugador].posX-bolaL.entidades.jugadores[jugador].magnitud*math.cos(bolaL.entidades.jugadores[jugador].angulo-ssangulo)*dt
@@ -100,30 +100,13 @@ function bolaL.inputP(dt,jugador,avanzar,retroceder,izquierda,derecha,disparar,m
     if love.keyboard.isDown(mina) then
         bolaL.entidades.plantarMina(bolaL.entidades.jugadores[jugador])
     end
+    if love.keyboard.isDown(pusa) then
+        inter.even = 3
+    end 
+
 end
 
-function bolaL.inputPd(dt,jugador,joy)
-    if joy:getAxis(2)<0 then
-        bolaL.entidades.jugadores[jugador].posY=bolaL.entidades.jugadores[jugador].posY-bolaL.entidades.jugadores[jugador].magnitud*math.sin(bolaL.entidades.jugadores[jugador].angulo-ssangulo)*dt
-        bolaL.entidades.jugadores[jugador].posX=bolaL.entidades.jugadores[jugador].posX-bolaL.entidades.jugadores[jugador].magnitud*math.cos(bolaL.entidades.jugadores[jugador].angulo-ssangulo)*dt
-    elseif joy:getAxis(2)>0 then
-        bolaL.entidades.jugadores[jugador].posY=bolaL.entidades.jugadores[jugador].posY+bolaL.entidades.jugadores[jugador].magnitud*math.sin(bolaL.entidades.jugadores[jugador].angulo-ssangulo)*dt
-        bolaL.entidades.jugadores[jugador].posX=bolaL.entidades.jugadores[jugador].posX+bolaL.entidades.jugadores[jugador].magnitud*math.cos(bolaL.entidades.jugadores[jugador].angulo-ssangulo)*dt
-    elseif joy:getAxis(1)<0 then
-        bolaL.entidades.jugadores[jugador].angulo=bolaL.entidades.jugadores[jugador].angulo-math.rad(100)*dt
-    elseif joy:getAxis(1)>0 then
-        bolaL.entidades.jugadores[jugador].angulo=bolaL.entidades.jugadores[jugador].angulo+math.rad(100)*dt
-    end
-    if joy:isDown(8) then
-    bolaL.entidades.disparar(bolaL.entidades.jugadores[jugador])
-    end
-    if joy:isDown(7) then
-        bolaL.entidades.plantarMina(bolaL.entidades.jugadores[jugador])
-    end
-end
 
-function bolaL.proupdate(dt,joy)
-bolaL.entidades.actualizarphy(dt)
 bolaL.entidades.actualizarJugadores(dt)
 bolaL.entidades.actualizarProyectiles(dt)
 bolaL.entidades.detectarColision(dt)
