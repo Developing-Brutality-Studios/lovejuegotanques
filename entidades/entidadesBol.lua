@@ -135,7 +135,7 @@ function entidadesBol.agregarProyectil(nEqu,posX,posY,strimagen,imagen,angulo,ma
     end
     table.insert( entidadesBol.proyectiles,ju)
 end
-
+local son =require(".//sonido")
 function entidadesBol.disparar(rrr)
     --crea un proyectil con el angulo y direccion
     local px=rrr.posX-24*math.cos(rrr.angulo-ssangulo)
@@ -143,6 +143,7 @@ function entidadesBol.disparar(rrr)
     --nEqu,posX,posY,strimagen,imagen,angulo,magnitud,danho,vida,powerUp,medX,medY,tamanho
     if rrr.energia>rrr.danhoproyectil then
         entidadesBol.agregarProyectil(rrr.equipo,px,py,1,nil,rrr.angulo,600,rrr.danhoproyectil,10,"ninguno",4,7,1,1)
+        son.play(son.sun[3])
         rrr.energia=rrr.energia-rrr.danhoproyectil
     end
 end
@@ -151,6 +152,7 @@ function entidadesBol.plantarMina(rrr)
     if rrr.energia>rrr.danhomina then
         entidadesBol.agregarProyectil(rrr.equipo,rrr.posX,rrr.posY,1,nil,0,0,rrr.danhomina,10,"ninguno",12,12,1,2)
         rrr.energia=rrr.energia-rrr.danhomina
+        son.play(son.mina[1])
     end
 end
 
@@ -327,7 +329,8 @@ function entidadesBol.detectarColision(dt)
                     entidadesBol.jugadores[i].eqimpac=entidadesBol.proyectiles[j].equipo
                     --print(entidadesBol.jugadores[i].eqimpac)
                     print(entidadesBol.jugadores[i].vida)
-                    entidadesBol.proyectiles[j].vida=entidadesBol.proyectiles[j].vida-entidadesBol.jugadores[i].danho
+                    entidadesBol.proyectiles[j].vida=entidadesBol.proyectiles[j].vida-entidadesBol.jugadores[i].danho             
+                    son.play(son.imp[1])
                     print(entidadesBol.jugadores[i].vida)
                 end
             end
@@ -380,6 +383,7 @@ end
 function entidadesBol.matarJugadores()
     for i=1,#entidadesBol.jugadores do
         if entidadesBol.jugadores[i].vida<1 then
+            son.play(son.dead[1])
             if entidadesBol.jugadores[i].banderaa then
             entidadesBol.banderas[entidadesBol.jugadores[i].band].posX=entidadesBol.jugadores[i].posX
             entidadesBol.banderas[entidadesBol.jugadores[i].band].posY=entidadesBol.jugadores[i].posY

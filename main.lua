@@ -1,5 +1,6 @@
 pantallaActual=1
 local juego=require "juego"
+local inter= require "interf"
 pantallas={}
 for i=1,2 do 
 pantallas[i]=0;
@@ -24,9 +25,13 @@ function love.update(dt)
     juego.mododejuego.proupdate(dt,joysticks[1])
 end
 
-function love.draw()
-pantallas[pantallaActual].dibujarCapas()
---love.graphics.draw(ifr,0,0)
+function love.draw()    
+    if inter.even == 4 then 
+        pantallas[pantallaActual].dibujarCapas()
+        --love.graphics.draw(ifr,0,0)
+    else
+        inter.dibijarElementos()
+    end
 end
 
 function love.keypressed(key,scancode,isrepeat)
@@ -35,3 +40,6 @@ function love.keypressed(key,scancode,isrepeat)
     end
     juego.mododejuego.keypressed( key,scancode,isrepeat)
 end
+function love.mousereleased(x, y, button)
+    inter.mousehandler(x,y,button)      
+end 
