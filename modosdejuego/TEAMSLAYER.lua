@@ -1,11 +1,14 @@
-local ts={entidades=require "../entidades/entidadesTS",mapa=require "../mapa/mapaTS",puntosEquipos={},mdx=400,mdy=300,ancho=800,alto=600}
+local ts={entidades=require "../entidades/entidadesTS",mapa=require "../mapa/mapaTS",puntosEquipos={},mdx=400,mdy=300,ancho=800,alto=600,pantallas={}}
 --corregir a nuevos parametros
 local ssangulo=math.rad(90)
 local ancho=0
 local alto=0
 local inputUno={}
 local inputDos={}
-
+local inputTres={}
+local inputCuatro={}
+local pausa=true
+local modo=0
 function ts.new(ancc,altt)
     ts.mapa.new("../mapas/TS","//assets/terrainTiles_default.png")
     ancho=ts.mapa.tablamapa.width*64
@@ -20,14 +23,32 @@ function ts.new(ancc,altt)
     inputUno.izquierda="a"
     inputUno.disparar="q"
     inputUno.mina="e"
-    inputUno.joystick=false
+    inputUno.joystick=true
+    inputUno.njoystick=1
     inputDos.adelante="i"
     inputDos.atras="k"
     inputDos.derecha="l"
     inputDos.izquierda="j"
-    inputDos.joystick=false
+    inputDos.joystick=true
+    inputDos.njoystick=2
     inputDos.disparar="u"
     inputDos.mina="o"
+    inputTres.adelante="w"
+    inputTres.atras="s"
+    inputTres.derecha="d"
+    inputTres.izquierda="a"
+    inputTres.disparar="q"
+    inputTres.mina="e"
+    inputTres.joystick=false
+    inputTres.njoystick=1
+    inputCuatro.adelante="i"
+    inputCuatro.atras="k"
+    inputCuatro.derecha="l"
+    inputCuatro.izquierda="j"
+    inputCuatro.joystick=false
+    inputCuatro.njoystick=2
+    inputCuatro.disparar="u"
+    inputCuatro.mina="o"
     for i=1,#ts.mapa.puntos do 
        if ts.mapa.puntos[i].val==1 then
          ts.entidades.agregarSpawn(ts.mapa.puntos[i].x,ts.mapa.puntos[i].y)
@@ -35,31 +56,109 @@ function ts.new(ancc,altt)
         ts.entidades.agregarPowerUp(ts.mapa.puntos[i].x,ts.mapa.puntos[i].y)
        end
     end
-    ts.entidades.agregarJugador(1,ts.entidades.spawns[1].x,ts.entidades.spawns[4].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputUno)
-    ts.entidades.agregarJugador(2,ts.entidades.spawns[2].x,ts.entidades.spawns[2].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputDos)
+    ts.entidades.agregarJugador(1,ts.entidades.spawns[2].x,ts.entidades.spawns[2].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputUno)
+    ts.entidades.agregarJugador(2,ts.entidades.spawns[1].x,ts.entidades.spawns[1].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputDos)
+    ts.entidades.agregarJugador(3,ts.entidades.spawns[3].x,ts.entidades.spawns[3].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputTres)
+    ts.entidades.agregarJugador(4,ts.entidades.spawns[4].x,ts.entidades.spawns[4].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputCuatro)
+    ts.configurarVideo(ts.ancho,ts.alto)
+end
 
+function ts.configurarVideo(width,height)
+    --ya sé que puedo usar un ciclo para ésto
+    --TODO:USAR UN CICLO
+    if #ts.entidades.jugadores==2 then 
+        ts.pantallas[1]={}
+        ts.pantallas[1].canvas=love.graphics.newCanvas(math.floor(width/2),height)
+        ts.pantallas[1].x=0
+        ts.pantallas[1].y=0
+        ts.pantallas[2]={}
+        ts.pantallas[2].canvas=love.graphics.newCanvas(math.floor(width/2),height)
+        ts.pantallas[2].x=math.floor(width/2)
+        ts.pantallas[2].y=0
+        
+    elseif #ts.entidades.jugadores==3 then 
+        ts.pantallas[1]={}
+        ts.pantallas[1].canvas=love.graphics.newCanvas(math.floor(width/2),height/2)
+        ts.pantallas[1].x=0
+        ts.pantallas[1].y=0
+        ts.pantallas[2]={}
+        ts.pantallas[2].canvas=love.graphics.newCanvas(math.floor(width/2),height/2)
+        ts.pantallas[2].x=math.floor(width/2)
+        ts.pantallas[2].y=0
+        ts.pantallas[3]={}
+        ts.pantallas[3].canvas=love.graphics.newCanvas(math.floor(width/2),height/2)
+        ts.pantallas[3].x=0
+        ts.pantallas[3].y=math.floor(height/2)
+    elseif #ts.entidades.jugadores==4 then
+        ts.pantallas[1]={}
+        ts.pantallas[1].canvas=love.graphics.newCanvas(math.floor(width/2),height/2)
+        ts.pantallas[1].x=0
+        ts.pantallas[1].y=0
+        ts.pantallas[2]={}
+        ts.pantallas[2].canvas=love.graphics.newCanvas(math.floor(width/2),height/2)
+        ts.pantallas[2].x=math.floor(width/2)
+        ts.pantallas[2].y=0
+        ts.pantallas[3]={}
+        ts.pantallas[3].canvas=love.graphics.newCanvas(math.floor(width/2),height/2)
+        ts.pantallas[3].x=0
+        ts.pantallas[3].y=math.floor(height/2)
+        ts.pantallas[4]={}
+        ts.pantallas[4].canvas=love.graphics.newCanvas(math.floor(width/2),height/2)
+        ts.pantallas[4].x=math.floor(width/2)
+        ts.pantallas[4].y=math.floor(height/2)
+    else
+         ts.pantallas=nil 
+    end
+    modo=#ts.entidades.jugadores
 end
 
 function ts.dibujar()
-ts.camara(1,1,nil)
+
+    --aqui tambien podría usar un ciclo
+
+    if modo==1 then
+        ts.camara(1,1,nil,ts.ancho,ts.alto)
+    elseif modo==2 then
+        ts.camara(1,2,ts.pantallas[1].canvas,ts.ancho/2,ts.alto)
+        ts.camara(1,1,ts.pantallas[2].canvas,ts.ancho/2,ts.alto)
+        love.graphics.draw(ts.pantallas[1].canvas,ts.pantallas[1].x,ts.pantallas[1].y)
+        love.graphics.draw(ts.pantallas[2].canvas,ts.pantallas[2].x,ts.pantallas[2].y)
+    elseif modo==3 then
+        ts.camara(1,2,ts.pantallas[1].canvas,ts.ancho/2,ts.alto/2)
+        ts.camara(1,1,ts.pantallas[2].canvas,ts.ancho/2,ts.alto/2)
+        ts.camara(1,3,ts.pantallas[2].canvas,ts.ancho/2,ts.alto/2)
+        love.graphics.draw(ts.pantallas[1].canvas,ts.pantallas[1].x,ts.pantallas[1].y)
+        love.graphics.draw(ts.pantallas[2].canvas,ts.pantallas[2].x,ts.pantallas[2].y)
+        love.graphics.draw(ts.pantallas[3].canvas,ts.pantallas[3].x,ts.pantallas[3].y)
+    elseif modo==4 then
+        ts.camara(1,2,ts.pantallas[1].canvas,ts.ancho/2,ts.alto/2)
+        ts.camara(1,1,ts.pantallas[2].canvas,ts.ancho/2,ts.alto/2)
+        ts.camara(1,3,ts.pantallas[3].canvas,ts.ancho/2,ts.alto/2)
+        ts.camara(1,4,ts.pantallas[4].canvas,ts.ancho/2,ts.alto/2)
+        love.graphics.draw(ts.pantallas[1].canvas,ts.pantallas[1].x,ts.pantallas[1].y)
+        love.graphics.draw(ts.pantallas[2].canvas,ts.pantallas[2].x,ts.pantallas[2].y)
+        love.graphics.draw(ts.pantallas[3].canvas,ts.pantallas[3].x,ts.pantallas[3].y)
+        love.graphics.draw(ts.pantallas[4].canvas,ts.pantallas[4].x,ts.pantallas[4].y)
+    end
+    
 end
 
-function ts.camara(equipo,jugador,canvasss)
-    local xsx=ts.entidades.jugadores[jugador].posX-ts.mdx
+function ts.camara(equipo,jugador,canvasss,llancho,llalto)
+    local xsx=ts.entidades.jugadores[jugador].posX-math.floor(llancho/2)
     --print(ts.entidades.jugadores[2].vida)
     if xsx<0 then 
         xsx=0
-    elseif xsx>ancho-ts.ancho then
-        xsx=ancho-ts.ancho
+    elseif xsx>ancho-llancho then
+        xsx=ancho-llancho
     end
-    local ysy=ts.entidades.jugadores[jugador].posY-ts.mdy
+    local ysy=ts.entidades.jugadores[jugador].posY-math.floor(llalto/2)
     if ysy<0 then 
         ysy=0
-    elseif ysy>alto-ts.alto then
-        ysy=alto-ts.alto
+    elseif ysy>alto-llalto then
+        ysy=alto-llalto
     end
-    ts.mapa.dibujar(xsx,ysy,ts.ancho,ts.alto,canvasss)
-    ts.entidades.dibujar(xsx,ysy,canvasss,ts.ancho,ts.alto)
+    ts.mapa.dibujar(xsx,ysy,llancho,llalto,canvasss)
+    ts.entidades.dibujar(xsx,ysy,canvasss,llancho,llalto)
     
 end
 --Mantiene a la entidad dentro de los limites del mapa
@@ -97,16 +196,29 @@ function ts.inputP(dt,jugador,avanzar,retroceder,izquierda,derecha,disparar,mina
     end
 end
 
-function ts.proupdate(dt)
-ts.entidades.actualizarphy(dt)
-ts.entidades.actualizarJugadores(dt)
-ts.entidades.actualizarProyectiles(dt)
-ts.entidades.detectarColision(dt)
+function ts.proupdate(dt,joyss)
+    if pausa then
+        ts.entidades.actualizarphy(dt)
+        ts.entidades.actualizarJugadores(dt,joyss)
+        ts.entidades.actualizarProyectiles(dt)
+        ts.entidades.detectarColision(dt)
+    end
+end
+
+function ts.joystickpressed(joystick,boton)
+    ts.entidades.joystickpressed(joystick,boton)
 end
 
 function ts.keypressed( key,scancode,isrepeat)
     -- body
-    ts.entidades.keypressed( key,scancode,isrepeat)
+    if key == "escape" then 
+        if pausa then
+            pausa=false
+        else
+            pausa=true
+        end
+    end
+    ts.entidades.keypressed(key,scancode,isrepeat)
 end
 
 return ts

@@ -22,7 +22,7 @@ end
 function love.update(dt)
     --eventos de mouse para elegir la opcion en el menu
     local joysticks = love.joystick.getJoysticks()
-    juego.mododejuego.proupdate(dt,joysticks[1])
+    juego.mododejuego.proupdate(dt,joysticks)
 end
 
 function love.draw()    
@@ -32,6 +32,10 @@ function love.draw()
     else
         inter.dibijarElementos()
     end
+end
+
+function love.joystickpressed( joystick, button ) 
+    juego.mododejuego.joystickpressed( joystick, button ) 
 end
 
 function love.keypressed(key,scancode,isrepeat)

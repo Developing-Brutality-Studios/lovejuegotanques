@@ -1,6 +1,6 @@
-local entidadesTS={jugadores={},proyectiles={},powerUps={},spawns={},ancho=850,alto=850,puntuaciones={},particulas={}}
-local tanques ={"//assets/tanques/tank_dark.png","//assets/tanques/tank_red.png","//assets/tanques/tank_green.png"}
-local proyectiles={"//assets/proyectiles/bulletDark1_outline.png","//assets/proyectiles/bulletRed1_outline.png","//assets/proyectiles/bulletGreen1_outline.png"}
+local entidadesTS={jugadores={},proyectiles={},powerUps={},spawns={},ancho=850,alto=850,puntuaciones={},particulas={},pantallas={}}
+local tanques ={"//assets/tanques/tank_dark.png","//assets/tanques/tank_red.png","//assets/tanques/tank_green.png","//assets/tanques/tank_blue.png"}
+local proyectiles={"//assets/proyectiles/bulletDark1_outline.png","//assets/proyectiles/bulletRed1_outline.png","//assets/proyectiles/bulletGreen1_outline.png","//assets/proyectiles/bulletGreen1_outline.png"}
 local mina=love.graphics.newImage("//assets/mina.png")
 local ssangulo=math.rad(90)
 local cbs=60
@@ -191,6 +191,52 @@ function entidadesTS.actualizarProyectiles(dt)
     end
 end
 
+function entidadesTS.actualizarJugadorMando(dt,pllayer,jjoys)
+    pllayer.posY=pllayer.body:getY()
+    pllayer.posX=pllayer.body:getX()
+    pllayer.posY=pllayer.posY-pllayer.magnitud*math.sin(pllayer.angulo-ssangulo)*dt
+        pllayer.posX=pllayer.posX-pllayer.magnitud*math.cos(pllayer.angulo-ssangulo)*dt
+        --restar valores absolutos podria ser mejor
+        if pllayer.magnitud>0 then
+            pllayer.magnitud=pllayer.magnitud-pllayer.antvelocidad*dt
+        elseif pllayer.magnitud<0 then
+            pllayer.magnitud=pllayer.magnitud+pllayer.antvelocidad*dt
+        end
+        if jjoys[pllayer.input.njoystick]:getAxis(2)<0 and jjoys[pllayer.input.njoystick]:getAxis(2)~=0 then
+            pllayer.magnitud=pllayer.magnitud+pllayer.auvel*dt
+            if pllayer.magnitud>pllayer.velocidad then
+                pllayer.magnitud=pllayer.velocidad
+            end
+        elseif jjoys[pllayer.input.njoystick]:getAxis(2)>0 and jjoys[pllayer.input.njoystick]:getAxis(2)~=0 then
+            pllayer.magnitud=pllayer.magnitud-pllayer.auvel*dt-20*dt
+            if pllayer.magnitud<-pllayer.velocidad then
+                pllayer.magnitud=-pllayer.velocidad
+            end
+        elseif jjoys[pllayer.input.njoystick]:getAxis(1)<0 and jjoys[pllayer.input.njoystick]:getAxis(1)~=0 then
+            pllayer.angulo=pllayer.angulo-math.rad(100)*dt
+        elseif jjoys[pllayer.input.njoystick]:getAxis(1)>0 and jjoys[pllayer.input.njoystick]:getAxis(1)~=0 then
+            pllayer.angulo=pllayer.angulo+math.rad(100)*dt
+        end
+        
+        pllayer.energia=pllayer.energia+pllayer.ratio*dt
+        if pllayer.energia>pllayer.limite then
+            pllayer.energia=pllayer.limite
+        end
+        pllayer.eparticula=pllayer.eparticula+1*dt
+        if pllayer.eparticula>1 then
+            pllayer.eparticula=1
+        end
+        if pllayer.magnitud == pllayer.velocidad and pllayer.eparticula>=1 then
+            entidadesTS.añadirParticulas(pllayer,10)
+            pllayer.eparticula=pllayer.eparticula-9.4*dt
+        end
+        if pllayer.banderaa then
+            entidadesBol.puntuaciones[pllayer.equipo].puntos=entidadesBol.puntuaciones[pllayer.equipo].puntos+1*dt
+        end
+        pllayer.body:setX(pllayer.posX)
+        pllayer.body:setY(pllayer.posY)
+end
+
 function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
     pllayer.posY=pllayer.body:getY()
     pllayer.posX=pllayer.body:getX()
@@ -237,18 +283,31 @@ function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
         pllayer.body:setY(pllayer.posY)
 end
 
+function entidadesTS.joystickpressed(jost,boton)
+    for i=1,#entidadesTS.jugadores do
+        if entidadesTS.jugadores[i].input.njoystick== jost:getConnectedIndex() then
+            if boton==1 then
+                entidadesTS.disparar(entidadesTS.jugadores[i])
+            end
+            if boton==2 then
+                entidadesTS.plantarMina(entidadesTS.jugadores[i])
+            end
+        end
+    end
+end
+
 function entidadesTS.actualizarphy(dt)
     world:update(dt)
 end
 
-function entidadesTS.actualizarJugadores(dt)
+function entidadesTS.actualizarJugadores(dt,joys)
     entidadesTS.matarJugadores()
     for i=1,#entidadesTS.jugadores do
         if entidadesTS.jugadores[i].input.joystick then
-            --entidadesTS.actualizarJugadorMando(dt,entidadesTS.jugadores[i])
+            entidadesTS.actualizarJugadorMando(dt,entidadesTS.jugadores[i],joys)
         else
             entidadesTS.actualizarJugadorTeclado(dt,entidadesTS.jugadores[i])
-            --print(joys[1]:getAxis(1))
+            --print(joys[1]:getAxis(2))
         end
     end
 end
