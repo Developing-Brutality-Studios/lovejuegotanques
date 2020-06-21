@@ -1,7 +1,7 @@
 cont ={jugador={}}
 local lume = require "/save/lume"
 function cont.save(control,list)
-    cont.jugador ={"w","s","d","a","q","e","\n",
+    cont.jugador ={"1","2","3","a","q","e","\n",
                     "i","k","l","j","u","o"}       
     local control = lume.serialize(cont.jugador)
     success, message = love.filesystem.write("controles.txt", control)
