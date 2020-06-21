@@ -9,23 +9,26 @@ local prueba=0
 function bolaL.new(ancc,altt)
     bolaL.mapa.new("../mapas/bola","//assets/terrainTiles_default.png")
     bolaL.ancho=ancc
-    bolaL.alto=altt
+    bolaL.alto=altt    
     bolaL.mdx=math.floor(ancc/2)
     bolaL.mdy=math.floor(altt/2)
-    inputUno.adelante="w"
-    inputUno.atras="s"
-    inputUno.derecha="d"
-    inputUno.izquierda="a"
-    inputUno.disparar="q"
-    inputUno.mina="e"
+    local cont =require "/save/controles"    
+    inputUno.adelante=cont.cargar()[1]
+    inputUno.atras=cont.cargar()[2]
+    inputUno.derecha=cont.cargar()[3]
+    inputUno.izquierda=cont.cargar()[4]
+    inputUno.disparar=cont.cargar()[5]
+    inputUno.mina=cont.cargar()[6]
     inputUno.joystick=false
-    inputDos.adelante="i"
-    inputDos.atras="k"
-    inputDos.derecha="l"
-    inputDos.izquierda="j"
+    inputDos.adelante=cont.cargar()[8]
+    inputDos.atras=cont.cargar()[9]
+    inputDos.derecha=cont.cargar()[10]
+    inputDos.izquierda=cont.cargar()[11]
     inputDos.joystick=false
-    inputDos.disparar="u"
-    inputDos.mina="o"
+    inputDos.disparar=cont.cargar()[12]
+    inputDos.mina=cont.cargar()[13]
+    
+    
     ancho=bolaL.mapa.tablamapa.width*64
     alto=bolaL.mapa.tablamapa.height*64
     bolaL.temud.new(bolaL.mapa,ancc,altt)

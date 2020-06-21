@@ -86,6 +86,9 @@ function event(x,y,ele)
                 if ele.id == 7 then
                     interf.ini.modo = ele.seg
                 end
+                if ele.id == 14 then 
+                    love.event.quit(0) 
+                end 
                 -----Opciones modo
                 if ele.id == 8 then
                     if interf.ini.modo == 1 then                        
@@ -214,15 +217,16 @@ function interf.mousehandler(x, y, button)
        end        
 end 
 
-function pagina1()
-        
+function pagina1()        
         addElement(1,100,100,"Jugar",2,2,1,1)
-        --addElement(1,100,200,"Personalizar",1,3,1,1)
-        addElement(1,100,300,"Salir",1,2,1,1)
+        addElement(1,100,200,"Personalizar controles",1,3,1,1)
+        addElement(1,100,300,"Salir",1,14,1,1)
         love.graphics.setBackgroundColor(46/255,64/255,83/255)        
 end 
-function pagina3()
+function pagina4()
         
+end 
+function pagina3()        
     
     addElement(10,100,100,"Seguir jugando",2,10,1,1)
     --addElement(10,100,200,"Configuraciones",1,3,1,1)

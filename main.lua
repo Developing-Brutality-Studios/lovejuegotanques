@@ -1,6 +1,7 @@
 pantallaActual=1
 local juego=require "juego"
 local inter= require "interf"
+local save = require "/save/controles"
 pantallas={}
 for i=1,2 do 
 pantallas[i]=0;
@@ -17,6 +18,7 @@ function love.load()
     xw,yw= love.window.getDesktopDimensions(1)
     love.window.setMode(xw, yw,{fullscreen=true,vsync=true})
     juego.new(4,xw,yw)
+   
 end
 
 function love.update(dt)
@@ -31,6 +33,8 @@ function love.draw()
         --love.graphics.draw(ifr,0,0)
     else
         inter.dibijarElementos()
+        save.save()
+
     end
 end
 

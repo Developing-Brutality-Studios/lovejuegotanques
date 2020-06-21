@@ -10,9 +10,7 @@ function juego.new(mdj,jancho,jalto)
     elseif mdj==2 then
         juego.mododejuego=require("./modosdejuego/CTF")
     elseif mdj==3 then
-        juego.mododejuego=require("./modosdejuego/reyDeLaColina")
-    elseif mdj==2 then
-        juego.mododejuego=require("./modosdejuego/CTF")
+        juego.mododejuego=require("./modosdejuego/reyDeLaColina")   
     elseif mdj==4 then
         juego.mododejuego=require("./modosdejuego/bolaL")
     end
