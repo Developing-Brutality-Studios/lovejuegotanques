@@ -1,17 +1,29 @@
-local entidadesTS={jugadores={},proyectiles={},powerUps={},spawns={},ancho=850,alto=850,puntuaciones={}}
+local entidadesTS={jugadores={},proyectiles={},powerUps={},spawns={},ancho=850,alto=850,puntuaciones={},particulas={}}
 local tanques ={"//assets/tanques/tank_dark.png","//assets/tanques/tank_red.png","//assets/tanques/tank_green.png"}
 local proyectiles={"//assets/proyectiles/bulletDark1_outline.png","//assets/proyectiles/bulletRed1_outline.png","//assets/proyectiles/bulletGreen1_outline.png"}
 local mina=love.graphics.newImage("//assets/mina.png")
 local ssangulo=math.rad(90)
 local cbs=60
 local mcbs=cbs/2
+local world=love.physics.newWorld(0,0,false)
 local calavera=love.graphics.newImage("//assets/skull.png")
+local llantas=love.graphics.newImage("//assets/tracksLarge.png")
 local particulas=love.graphics.newImage("//assets/explosion3.png")
 local caja=love.graphics.newImage("//assets/crateMetal.png")
 function entidadesTS.agregarEquipo()
 local equipo={}
 table.insert(entidadesTS.equipos, equipo)
 end
+
+local begin_contact_callback = function(fixture_a, fixture_b, contact)
+    print("empezo colision")
+end
+  
+local end_contact_callback = function(fixture_a, fixture_b, contact)
+    print("termino colision")
+end
+  
+world:setCallbacks(begin_contact_callback, end_contact_callback, nil, nil)
 
 function entidadesTS.agregarSpawn(spx,spy)
 local spawn={}
@@ -39,13 +51,20 @@ function entidadesTS.agregarJugador(nEqu,posX,posY,strimagen,imagen,angulo,magni
         ro.puntos=0
         table.insert( entidadesTS.puntuaciones,ro)
     end
+    ju.eparticula=1
+    ju.velocidad=magnitud
+    ju.antvelocidad=25
+    ju.auvel=100
+    ju.input=anco
     ju.equipo=nEqu
     ju.posX=posX
     ju.posY=posY
+    ju.rposX=0
+    ju.rposY=0
     ju.strimagen=tanques[nEqu]
     ju.imagen=love.graphics.newImage(ju.strimagen)
     ju.angulo=angulo
-    ju.magnitud=magnitud
+    ju.magnitud=0
     ju.danho=danho
     ju.vida=vida
     ju.powerup=powerUp
@@ -59,7 +78,14 @@ function entidadesTS.agregarJugador(nEqu,posX,posY,strimagen,imagen,angulo,magni
     ju.spawnear=true
     ju.danhomina=50
     ju.danhoproyectil=20
+    ju.banderaa=false
+    ju.band=0
+    ju.body=love.physics.newBody(world,ju.posX,ju.posY,"dynamic")
+    --ju.body:setBullet(true)
+    ju.shape=love.physics.newRectangleShape(40,40)
+    ju.fixture=love.physics.newFixture(ju.body,ju.shape,1)
     table.insert( entidadesTS.jugadores,ju)
+    print(type(entidadesTS.jugadores[#entidadesTS.jugadores].input.adelante))
     print("jugadorAgregado")
 end
 
@@ -119,7 +145,25 @@ function entidadesTS.eliminarProyectiles(limitex,limitey)
     end
 end
 
+function entidadesTS.eliminarParticulas()
+    if #entidadesTS.particulas>0 then
+        for i=1,#entidadesTS.proyectiles do
+            if entidadesTS.particulas[i]~=nil then
+                if entidadesTS.proyectiles[i].vida<=0 then
+                    table.remove( entidadesTS.particulas,i)
+                end
+            end
+        end
+    end
+end
+
 function entidadesTS.actualizarProyectiles(dt)
+    entidadesTS.eliminarParticulas()
+    for i=1,#entidadesTS.particulas do
+       
+        entidadesTS.particulas[i].vida=entidadesTS.particulas[i].vida-1*dt
+    
+    end
     if #entidadesTS.proyectiles>0 then
         for i=1,#entidadesTS.proyectiles do
             if  entidadesTS.proyectiles[i]~=nil then
@@ -147,22 +191,82 @@ function entidadesTS.actualizarProyectiles(dt)
     end
 end
 
+function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
+    pllayer.posY=pllayer.body:getY()
+    pllayer.posX=pllayer.body:getX()
+    pllayer.posY=pllayer.posY-pllayer.magnitud*math.sin(pllayer.angulo-ssangulo)*dt
+        pllayer.posX=pllayer.posX-pllayer.magnitud*math.cos(pllayer.angulo-ssangulo)*dt
+        --restar valores absolutos podria ser mejor
+        if pllayer.magnitud>0 then
+            pllayer.magnitud=pllayer.magnitud-pllayer.antvelocidad*dt
+        elseif pllayer.magnitud<0 then
+            pllayer.magnitud=pllayer.magnitud+pllayer.antvelocidad*dt
+        end
+        if love.keyboard.isDown(pllayer.input.adelante) then
+            pllayer.magnitud=pllayer.magnitud+pllayer.auvel*dt
+            if pllayer.magnitud>pllayer.velocidad then
+                pllayer.magnitud=pllayer.velocidad
+            end
+        elseif love.keyboard.isDown(pllayer.input.atras) then
+            pllayer.magnitud=pllayer.magnitud-pllayer.auvel*dt-20*dt
+            if pllayer.magnitud<-pllayer.velocidad then
+                pllayer.magnitud=-pllayer.velocidad
+            end
+        elseif love.keyboard.isDown(pllayer.input.izquierda) then
+            pllayer.angulo=pllayer.angulo-math.rad(100)*dt
+        elseif love.keyboard.isDown(pllayer.input.derecha) then
+            pllayer.angulo=pllayer.angulo+math.rad(100)*dt
+        end
+        
+        pllayer.energia=pllayer.energia+pllayer.ratio*dt
+        if pllayer.energia>pllayer.limite then
+            pllayer.energia=pllayer.limite
+        end
+        pllayer.eparticula=pllayer.eparticula+1*dt
+        if pllayer.eparticula>1 then
+            pllayer.eparticula=1
+        end
+        if pllayer.magnitud == pllayer.velocidad and pllayer.eparticula>=1 then
+            entidadesTS.añadirParticulas(pllayer,10)
+            pllayer.eparticula=pllayer.eparticula-9.4*dt
+        end
+        if pllayer.banderaa then
+            entidadesBol.puntuaciones[pllayer.equipo].puntos=entidadesBol.puntuaciones[pllayer.equipo].puntos+1*dt
+        end
+        pllayer.body:setX(pllayer.posX)
+        pllayer.body:setY(pllayer.posY)
+end
+
+function entidadesTS.actualizarphy(dt)
+    world:update(dt)
+end
+
 function entidadesTS.actualizarJugadores(dt)
     entidadesTS.matarJugadores()
     for i=1,#entidadesTS.jugadores do
-        entidadesTS.jugadores[i].energia=entidadesTS.jugadores[i].energia+entidadesTS.jugadores[i].ratio*dt
-        if entidadesTS.jugadores[i].energia>entidadesTS.jugadores[i].limite then
-            entidadesTS.jugadores[i].energia=entidadesTS.jugadores[i].limite
+        if entidadesTS.jugadores[i].input.joystick then
+            --entidadesTS.actualizarJugadorMando(dt,entidadesTS.jugadores[i])
+        else
+            entidadesTS.actualizarJugadorTeclado(dt,entidadesTS.jugadores[i])
+            --print(joys[1]:getAxis(1))
         end
     end
 end
 
+function entidadesTS.añadirParticulas(jugadorr,duracion)
+    local ju={}
+    ju.posX=jugadorr.posX
+    ju.posY=jugadorr.posY
+    ju.angulo=jugadorr.angulo
+    ju.vida=duracion
+    ju.vidamax=duracion+0
+    table.insert( entidadesTS.particulas, ju)
+end 
 
-function entidadesTS.estaDentro(exx,eyy,entt)
+function entidadesTS.estaDentro(exx,eyy,entt,xa,ya)
     local retorno=false
-    local erer=entt.posX>exx and entt.posX<exx+entidadesTS.ancho
-    local rr=entt.posY>eyy and entt.posY<eyy+entidadesTS.ancho
-
+    local erer=entt.posX>exx and entt.posX<exx+xa
+    local rr=entt.posY>eyy and entt.posY<eyy+ya
     if rr and erer then
     retorno=true
     end
@@ -254,23 +358,50 @@ function entidadesTS.desactivarPu(tipo,ply)
 end
 
 function entidadesTS.spawnearJugadores(ent)
+    ent.body:setX(entidadesTS.spawns[ent.equipo].x)
+    ent.body:setY(entidadesTS.spawns[ent.equipo].y)
     ent.posX=entidadesTS.spawns[ent.equipo].x
     ent.posY=entidadesTS.spawns[ent.equipo].y
+    ent.banderaa=false
     ent.energia=100
     ent.limite=100
     ent.vida=100
     ent.ratio=50
 end
 
+function entidadesTS.keypressed( key,scancode,isrepeat)
+    -- body
+    for i=1,#entidadesTS.jugadores do
+        if key==entidadesTS.jugadores[i].input.disparar then
+            entidadesTS.disparar(entidadesTS.jugadores[i])
+        end
+        if key==entidadesTS.jugadores[i].input.mina then
+            entidadesTS.plantarMina(entidadesTS.jugadores[i])
+        end
+    end
+end
 
-
-function entidadesTS.dibujar(eex,eey,canv)
+function entidadesTS.dibujar(eex,eey,canv,xa,ya)
     --dibuja a los proyectiles
     if canv~=nil then
         love.graphics.setCanvas(canv)
     end
+     --dibuja los efectos
+     for i=1,#entidadesTS.particulas do
+        if entidadesTS.estaDentro(eex,eey,entidadesTS.particulas[i],xa,ya) then
+            local fx=entidadesTS.particulas[i].posX-eex
+            local fy=entidadesTS.particulas[i].posY-eey
+            love.graphics.setColor(255,255,255,entidadesTS.particulas[i].vida/entidadesTS.particulas[i].vidamax)
+            love.graphics.draw(llantas,fx,fy,entidadesTS.particulas[i].angulo,1,1,20,26,0,0)
+            --dibuja la caja de colision
+        end
+    
+    end
+
+    love.graphics.setColor(255,255,255,1)
+
     for i=1,#entidadesTS.proyectiles do
-        if entidadesTS.estaDentro(eex,eey,entidadesTS.proyectiles[i]) then
+        if entidadesTS.estaDentro(eex,eey,entidadesTS.proyectiles[i],xa,ya) then
             local fx=entidadesTS.proyectiles[i].posX-eex
             local fy=entidadesTS.proyectiles[i].posY-eey
             love.graphics.draw(entidadesTS.proyectiles[i].imagen,fx,fy,entidadesTS.proyectiles[i].angulo,entidadesTS.proyectiles[i].tamanho,entidadesTS.proyectiles[i].tamanho,entidadesTS.proyectiles[i].medX,entidadesTS.proyectiles[i].medY,0,0)
@@ -281,7 +412,7 @@ function entidadesTS.dibujar(eex,eey,canv)
     
     --dibuja los power Ups
     for i=1,#entidadesTS.powerUps do
-        if entidadesTS.estaDentro(eex,eey,entidadesTS.powerUps[i]) then
+        if entidadesTS.estaDentro(eex,eey,entidadesTS.powerUps[i],xa,ya) then
             local fx=entidadesTS.powerUps[i].posX-eex
             local fy=entidadesTS.powerUps[i].posY-eey
             if entidadesTS.powerUps[i].vida>61 then
@@ -296,7 +427,7 @@ function entidadesTS.dibujar(eex,eey,canv)
 
     --dibuja a los jugadores
     for i=1,#entidadesTS.jugadores do
-            if entidadesTS.estaDentro(eex,eey,entidadesTS.jugadores[i]) then
+            if entidadesTS.estaDentro(eex,eey,entidadesTS.jugadores[i],xa,ya) then
                 local fx=entidadesTS.jugadores[i].posX-eex
                 local fy=entidadesTS.jugadores[i].posY-eey
                 love.graphics.draw(entidadesTS.jugadores[i].imagen,fx,fy,entidadesTS.jugadores[i].angulo,entidadesTS.jugadores[i].tamanho,entidadesTS.jugadores[i].tamanho,entidadesTS.jugadores[i].medX,entidadesTS.jugadores[i].medY,0,0)

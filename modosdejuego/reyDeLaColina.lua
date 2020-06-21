@@ -1,14 +1,33 @@
-local rey={entidades=require "../entidades/entidadesrey",mapa=require "../mapa/mapaTS",puntosEquipos={},mdx=400,mdy=300,ancho=1200,alto=600}
+local rey={entidades=require "../entidades/entidadesRey",mapa=require "../mapa/mapaTS",puntosEquipos={},mdx=400,mdy=300,ancho=1200,alto=600}
 --corregir a nuevos parametros
 local ssangulo=math.rad(90)
 local ancho=0
 local alto=0
+local inputUno={}
+local inputDos={}
 
-
-function rey.new()
+function rey.new(ancc,altt)
     rey.mapa.new("../mapas/rey","//assets/terrainTiles_default.png")
     ancho=rey.mapa.tablamapa.width*64
     alto=rey.mapa.tablamapa.height*64
+    rey.ancho=ancc
+    rey.alto=altt
+    rey.mdx=math.floor(ancc/2)
+    rey.mdy=math.floor(altt/2)
+    inputUno.adelante="w"
+    inputUno.atras="s"
+    inputUno.derecha="d"
+    inputUno.izquierda="a"
+    inputUno.disparar="q"
+    inputUno.mina="e"
+    inputUno.joystick=false
+    inputDos.adelante="i"
+    inputDos.atras="k"
+    inputDos.derecha="l"
+    inputDos.izquierda="j"
+    inputDos.joystick=false
+    inputDos.disparar="u"
+    inputDos.mina="o"
     
     for i=1,#rey.mapa.puntos do 
        if rey.mapa.puntos[i].val==1 then
@@ -21,8 +40,8 @@ function rey.new()
 
     end
 
-    rey.entidades.agregarJugador(1,rey.entidades.spawns[4].x,rey.entidades.spawns[4].y,"nada",nil,0,300,20,100,"ninguno",21,23,1)
-    rey.entidades.agregarJugador(2,rey.entidades.spawns[2].x,rey.entidades.spawns[2].y,"nada",nil,0,300,20,100,"ninguno",21,23,1)
+    rey.entidades.agregarJugador(1,rey.entidades.spawns[4].x,rey.entidades.spawns[4].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputUno)
+    rey.entidades.agregarJugador(2,rey.entidades.spawns[2].x,rey.entidades.spawns[2].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputDos)
 
 end
 
@@ -84,12 +103,14 @@ function rey.inputP(dt,jugador,avanzar,retroceder,izquierda,derecha,disparar,min
 end
 
 function rey.proupdate(dt)
-rey.inputP(dt,1,"w","s","a","d","q","e")
-rey.inputP(dt,2,"i","k","j","l","u","o")
-rey.corregirPosicion(rey.entidades.jugadores[1])
+rey.entidades.actualizarphy(dt)
 rey.entidades.actualizarJugadores(dt)
 rey.entidades.actualizarProyectiles(dt)
 rey.entidades.detectarColision(dt)
+end
+function rey.keypressed( key,scancode,isrepeat)
+    -- body
+    rey.entidades.keypressed( key,scancode,isrepeat)
 end
 
 return rey
