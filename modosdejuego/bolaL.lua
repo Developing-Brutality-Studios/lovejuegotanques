@@ -13,20 +13,20 @@ function bolaL.new(ancc,altt)
     bolaL.mdx=math.floor(ancc/2)
     bolaL.mdy=math.floor(altt/2)
     local cont =require "/save/controles"    
-    inputUno.adelante=cont.cargar()[1]
-    inputUno.atras=cont.cargar()[2]
-    inputUno.derecha=cont.cargar()[3]
-    inputUno.izquierda=cont.cargar()[4]
-    inputUno.disparar=cont.cargar()[5]
-    inputUno.mina=cont.cargar()[6]
+    inputUno.adelante="w"
+    inputUno.atras="s"
+    inputUno.derecha="d"
+    inputUno.izquierda="a"
+    inputUno.disparar="e"
+    inputUno.mina="q"
     inputUno.joystick=false
-    inputDos.adelante=cont.cargar()[8]
-    inputDos.atras=cont.cargar()[9]
-    inputDos.derecha=cont.cargar()[10]
-    inputDos.izquierda=cont.cargar()[11]
+    inputDos.adelante="i"
+    inputDos.atras="k"
+    inputDos.derecha="l"
+    inputDos.izquierda="j"
     inputDos.joystick=false
-    inputDos.disparar=cont.cargar()[12]
-    inputDos.mina=cont.cargar()[13]
+    inputDos.disparar="o"
+    inputDos.mina="u"
     
     
     ancho=bolaL.mapa.tablamapa.width*64

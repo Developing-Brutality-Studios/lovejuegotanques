@@ -1,167 +1,174 @@
-interf={elementos={},even=3,ini={jugadores =1,modo=2,numMuertes=20,capturas= 3,rondas=1,time=120}} 
-local font = love.graphics.newFont( "arial_/arial_narrow_7.ttf",20 )
+interf={elementos={},even=3,ini={jugadores =1,modo=2,numMuertes=20,capturas=3,rondas=1,time=120}} 
+local font = love.graphics.newFont( "arial_/arial_narrow_7.ttf",25)
 local color ={244/255,208/255,63/255}   
-function cajas(ele,ref) 
-            
-    local t = love.graphics.newText( font, ele.txt)
-    local w, h = t:getDimensions()
-
-    local p = love.graphics.newText( font, ref)            
-            love.graphics.rectangle("line",(ele.x-2)+w*1.1+10,ele.y-2,40,h)
-            love.graphics.draw(p,(ele.x-2)+w*1.1+12,ele.y,0,ele.escalax,ele.escalay)
+local lista ={"a","b","c","d","q","e","\n","i","k","l","j","u","o"} 
+local sen = false 
+local segX
+local segY
+function size()
+    w,h= love.window.getDesktopDimensions(1)
+    segX = w/40
+    segY = h/20
 end 
 
+function caja_estado(ele,ref) 
+            
+    local t = love.graphics.newText( font, ele.txt)
+    local r = love.graphics.newText( font, ref)
+    local w, h = t:getDimensions()
+    local w2, h2 = r:getDimensions()
+
+    local p = love.graphics.newText( font, ref)            
+            love.graphics.rectangle("line",(ele.x-6)+w*1.1+10,ele.y-2,w2*2.050,h2)
+            love.graphics.draw(p,(ele.x-2)+w*1.1+12,ele.y)            
+end 
 function dibujarText(ele)   
         --local font = love.graphics.getFont()              
         local t = love.graphics.newText( font, ele.txt)     
         local w, h = t:getDimensions()
-        love.graphics.draw(t,ele.x,ele.y,0,1,1) 
-
-        if ele.tipo == 1 then
-           -- love.graphics.rectangle("line",ele.x-2,ele.y,w*1.1,h*1.6)
-        end 
-        if ele.tipo == 2 then
-            cajas(ele,interf.ini.jugadores)             
-        end 
-        if ele.tipo == 3 then
-            cajas(ele,interf.ini.numMuertes)                    
-        end 
-        if ele.tipo == 4 then
-            cajas(ele,interf.ini.modo) 
-            
+        love.graphics.draw(t,ele.x,ele.y,0,1,1)         
+        if ele.tipo == "caja_estado" then
+            caja_estado(ele,ele.transp)             
+        end       
+        if ele.tipo == "rectangulo" then 
+            love.graphics.rectangle("line",ele.x-4,ele.y-4,w*1.050,h*1.1)            
         end
-        if ele.tipo == 5 then
-            cajas(ele,interf.ini.capturas)             
+        if ele.tipo == "cajaEstadoControl" then 
+            caja_estado(ele,lista[ele.seg]) 
         end 
-        if ele.tipo == 6 then
-            cajas(ele,interf.ini.rondas)             
-        end
-        if ele.tipo == 7 then
-            cajas(ele,interf.ini.time)             
-        end
-        if ele.tipo == 8 then 
-            love.graphics.rectangle("line",ele.x-4,ele.y-4,w*1.2,h*1.1)
-        end
-        if ele.tipo == 10 then 
-            love.graphics.rectangle("line",ele.x-4,ele.y-4,w*1.2,h*1.1)
+        if ele.tipo == "imagen"   then 
+           local image = love.graphics.newImage( ele.seg )
+           love.graphics.draw( image, ele.x, ele.y, ele.frase, ele.escalax, ele.escalaxy, ele.tColorT, ele.tColorf)
         end 
-            
-    
 end 
-function addElement(tipo,x,y,val,seg,id,ty,tp)
+
+function colorear(x,y,w,h)
+    if sen then
+        love.graphics.rectangle("fill",x,y,w,h)
+    end 
+end 
+function lable(tipo,x,y,val,seg,id,ty)    
+        interf.addUIElement(x,y,tipo,val,1,1,1,1,0.23,id,1,1,1,seg)           
+end 
+
+function boton_flecaha(tipo,x,y,val,seg,id,ty,variable)
+    local t = love.graphics.newText( font, val)     
+    local w, h = t:getDimensions()
+    interf.addUIElement(x,y,tipo,val,1,1,1,1,variable,0,1,1,1,1)
+    interf.addUIElement(x+w+100,y,"rectangulo"," + ",1,1,1,ty,0.23,"botonAumento",1,1,1,1)
+    interf.addUIElement(x+w+100+segX,y,"rectangulo"," - ",1,1,1,ty,0.23,"botonDisminuir",1,1,1,1)
     --interf.addUIElement(x,y,tipo,frase,escalax,escalay,tx,ty,transp,id,tColorT,tColorF,im,seg)
-              
-        local t = love.graphics.newText( font, val)     
-        local w, h = t:getDimensions()
-    if tp == 1 then 
-        interf.addUIElement(x,y,tipo,val,1,1,1,1,0.23,id,1,1,1,seg)
+end 
+
+function controles(tipo,x,y,val,seg)
+    local t = love.graphics.newText( font, val)     
+    local w, h = t:getDimensions()
+        interf.addUIElement(x,y,tipo,"Adelante",1,1,1,1,0.23,0,1,1,1,seg)
+        interf.addUIElement(x,y+30,tipo,"Atras",1,1,1,1,0.23,0,1,1,1,seg+1)
+        interf.addUIElement(x,y+60,tipo,"Derecha",1,1,1,1,0.23,0,1,1,1,seg+2)
+        interf.addUIElement(x,y+90,tipo,"Izquierda",1,1,1,1,0.23,0,1,1,1,seg+3)
+        interf.addUIElement(x,y+120,tipo,"Disparar",1,1,1,1,0.23,0,1,1,1,seg+4)
+        interf.addUIElement(x,y+150,tipo,"Mina",1,1,1,1,0.23,0,1,1,1,seg+5)
+
+        interf.addUIElement(x+w+80,y,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg)
+        interf.addUIElement(x+w+80,y+30,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+1)
+        interf.addUIElement(x+w+80,y+60,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+2)
+        interf.addUIElement(x+w+80,y+90,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+3)
+        interf.addUIElement(x+w+80,y+120,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+4)
+        interf.addUIElement(x+w+80,y+150,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+5)
+        --interf.addUIElement(x,y,tipo,frase,escalax,escalay,tx,ty,transp,id,tColorT,tColorF,im,seg)
+end 
+function condicion(ref,paso,sig,condicion)
+    if sig == "mas" then 
+        if  ref < condicion then 
+            ref = ref + paso
+        end 
+        return ref
     end 
-    if tp == 2 then         
-        interf.addUIElement(x,y,tipo,val,1,1,1,1,0.23,0,1,1,1,1)
-        interf.addUIElement(w+200,y,8," + ",1,1,1,ty,0.23,8,1,1,1,1)
-        interf.addUIElement(w+230,y,8," - ",1,1,1,ty,0.23,9,1,1,1,1)
+    if  sig == "menos" then 
+        if  ref > condicion then 
+            ref = ref - paso
+        end 
+        return ref
     end 
+end 
+function imagen(tipo,x,y,r,sx,sy,ox,oy,kx,ky,direc)
+    --interf.addUIElement(x,y,tipo,frase,escalax,escalay,tx,ty,transp,id,tColorT,tColorF,im,seg)    
+        interf.addUIElement(x,y,"imagen",r,sx,sy,ox,oy,1,1,kx,ky,1,direc)  
 
 end 
-    
 function event(x,y,ele)
              
             t = love.graphics.newText( font, ele.txt)
             w, h = t:getDimensions()         
-            if x > ele.x and x < ele.x+w*1.1 and y > ele.y and y < ele.y+h*1.1 then
+            if x > ele.x-4 and x < ele.x+w*1.2 and y > ele.y and y < ele.y+h*1.1 then
                 color ={244/255,208/255,63/255}
+                sen = true
+                colorear(ele.x-4,ele.y-4,w*1.050,h*1.1)
                 if ele.id == 2 then
-                interf.even = ele.seg 
-                end
-                if ele.id == 4 then                    
-                    if interf.ini.jugadores < 4 then 
-                    interf.ini.jugadores =interf.ini.jugadores +1
-                    end 
-                end
-                if ele.id == 5 then
-                    if interf.ini.jugadores > 1 then 
-                    interf.ini.jugadores =interf.ini.jugadores -1
-                    end 
-                end 
+                    interf.even = ele.seg 
+                end              
                 if ele.id == 7 then
                     interf.ini.modo = ele.seg
                 end
                 if ele.id == 14 then 
                     love.event.quit(0) 
+                end
+               
+                -----Opciones modo                
+                if ele.id == "botonAumento" then
+                    if ele.ty == 1 then                                       
+                        interf.ini.jugadores = condicion(interf.ini.jugadores,1,"mas",4)
+                    end
+                    if ele.ty == 2 then                                               
+                        interf.ini.numMuertes = condicion(interf.ini.numMuertes,5,"mas",100) 
+                    end 
+                    if ele.ty == 5 then                            
+                        interf.ini.capturas = condicion(interf.ini.capturas,1,"mas",6)
+                    end                         
+                    if ele.ty == 5 then                            
+                        interf.ini.time = condicion(interf.ini.time,25,"mas",600)
+                    end 
+                    if ele.ty == 4 then                            
+                        interf.ini.rondas = condicion(interf.ini.rondas,1,"mas",3)
+                    end 
+                   
+                      
                 end 
-                -----Opciones modo
-                if ele.id == 8 then
-                    if interf.ini.modo == 1 then                        
-                        if  interf.ini.numMuertes < 100 then 
-                            interf.ini.numMuertes = interf.ini.numMuertes + 5 
-                        end 
+                if ele.id == "botonDisminuir" then 
+                    if  ele.ty == 1 then                    
+                        interf.ini.jugadores = condicion(interf.ini.jugadores,1,"menos",1)
                     end
-                    if interf.ini.modo == 2 then
-                        if ele.ty == 5 then
-                            if  interf.ini.capturas < 6 then 
-                                interf.ini.capturas = interf.ini.capturas + 1 
-                            end                            
-                        end 
-                        if ele.ty == 4 then
-                            if  interf.ini.rondas < 3 then 
-                                interf.ini.rondas = interf.ini.rondas + 1 
-                            end
-                            
-                        end                                
-                
-                    end
-                    if interf.ini.modo == 3 or interf.ini.modo == 4 then
-                        if ele.ty == 5 then
-                            if  interf.ini.time < 600 then 
-                                interf.ini.time = interf.ini.time + 25 
-                            end                            
-                        end 
-                        if ele.ty == 4 then
-                            if  interf.ini.rondas < 3 then 
-                                interf.ini.rondas = interf.ini.rondas + 1 
-                            end
-                            
-                        end                                
-                
-                    end   
-                end 
-                if ele.id == 9 then 
-                    if interf.ini.modo == 1 then
-                        if  interf.ini.numMuertes > 20 then 
-                            interf.ini.numMuertes = interf.ini.numMuertes - 5 
-                        end 
-                    end
-                    if interf.ini.modo == 2 then
-                        if ele.ty == 5 then
-                            if  interf.ini.capturas > 3 then 
-                                interf.ini.capturas = interf.ini.capturas - 1 
-                            end
-                        end    
+                    if ele.ty == 2 then                       
+                        interf.ini.numMuertes = condicion(interf.ini.numMuertes,5,"menos",20) 
+                    end                   
+                    if ele.ty == 5 then
+                        interf.ini.capturas = condicion(interf.ini.capturas,1,"menos",1)
+                    end                                                                                       
+                    if ele.ty == 5 then                           
+                        interf.ini.time = condicion(interf.ini.time,25,"menos",120)                          
+                    end 
+                    if ele.ty == 4 then                            
+                        interf.ini.rondas = condicion(interf.ini.rondas,1,"menos",1)
+                    end       
                        
-                        if ele.ty == 4 then
-                            if  interf.ini.rondas > 1 then 
-                                interf.ini.rondas = interf.ini.rondas - 1 
-                            end                            
-                        end                               
-                
-                    end
-                    if interf.ini.modo == 3 or interf.ini.modo == 4 then
-                        if ele.ty == 5 then
-                            if  interf.ini.time > 120 then 
-                                interf.ini.time = interf.ini.time - 25 
-                            end                            
-                        end 
-                        if ele.ty == 4 then
-                            if  interf.ini.rondas > 1 then 
-                                interf.ini.rondas = interf.ini.rondas - 1 
-                            end 
-                            
-                        end                                
-                
-                    end
                 end
                 if ele.id == 10 then
                     interf.even = 4
+                end 
+                if ele.id == "controles" then                    
+                    function love.keyreleased(key)                        
+                            local letra = true 
+                            for k,v in pairs(lista) do
+                                if lista[k] == key then 
+                                    letra = false
+                                end 
+                            end 
+                            if letra then
+                                lista[ele.seg] = key   
+                            end 
+                    end
+                    
                 end 
                 ----------
             end         
@@ -182,8 +189,7 @@ function interf.addUIElement(x,y,tipo,frase,escalax,escalay,tx,ty,transp,id,tCol
     ele.ty=ty
     ele.transp=transp
     ele.im=im
-    ele.seg=seg
-    
+    ele.seg=seg    
     table.insert(interf.elementos,ele)  
 end
 function validar()
@@ -198,15 +204,18 @@ function validar()
     if interf.even == 3 then
         pagina3()
     end
+    if interf.even == 5 then
+        pagina4()
+    end
 
 end
 
 function interf.dibijarElementos()    
+    size()
     validar()
      for i=1,#interf.elementos,1 do       
             dibujarText(interf.elementos[i])                     
-    end 
-    love.graphics.print(interf.even) 
+    end     
 end
 
 function interf.mousehandler(x, y, button)
@@ -218,53 +227,56 @@ function interf.mousehandler(x, y, button)
 end 
 
 function pagina1()        
-        addElement(1,100,100,"Jugar",2,2,1,1)
-        addElement(1,100,200,"Personalizar controles",1,3,1,1)
-        addElement(1,100,300,"Salir",1,14,1,1)
+        lable(1,segX*16,segY*7,"Jugar",2,2)
+        lable(1,segX*15,segY*8,"Configuracion",5,2)
+        lable(1,segX*16,segY*9,"Salir",1,14)
         love.graphics.setBackgroundColor(46/255,64/255,83/255)        
 end 
 function pagina4()
-        
+        lable(1,segX*14,segY*3,"Jugador 1",2,0)
+        lable(1,segX*22,segY*3,"Jugador 2",2,0)
+        controles("cajaEstadoControl",segX*12,segY*5,"controles1",1)
+        controles("cajaEstadoControl",segX*20,segY*5,"controles2",8)
+        lable(8,segX*14,segY*13,"Salir pantalla inicio",1,2,1,1)  
+
+
 end 
-function pagina3()        
-    
-    addElement(10,100,100,"Seguir jugando",2,10,1,1)
-    --addElement(10,100,200,"Configuraciones",1,3,1,1)
-    addElement(10,100,300,"Salir pantalla inicio",1,2,1,1)        
+function pagina3()       
+    lable("rectangulo",segX*14,segY*7,"Seguir jugando",2,10)
+    lable("rectangulo",segX*14,segY*8,"Configuracion",5,2)
+    lable("rectangulo",segX*13,segY*9,"Salir pantalla inicio",1,2)        
 end 
 function pagina2() 
-   -- addElement(tipo,x,y,val,seg,id,ty,tp)
-        addElement(1,100,100,"Modo de juego: ",1,0,1,1)     
-        addElement(10,160,130,"Team Slayer",1,7,1,1)     
-        addElement(10,160,160,"Capture The Flag",2,7,1,1)     
-        addElement(10,160,190,"King Of The Hill",3,7,1,1)     
-        addElement(10,160,220,"Crazy Ball",4,7,1,1)                
-              
-        interf.addUIElement(100,260,2,"Jugadores: ",1,1,1,1,0.23,0,1,1,1,2)
-        interf.addUIElement(270,260,8," + ",1,1,1,1,0.23,4,1,1,1,1)
-        interf.addUIElement(300,260,8," - ",1,1,1,1,0.23,5,1,1,1,1)
+   -- lable(tipo,x,y,val,seg,id,ty,tp)
+        lable(1,segX*8,segY*4,"Modo de juego: ",1,0)     
+        lable("rectangulo",segX*8,segY*5,"Team Slayer",1,7)     
+        lable("rectangulo",segX*8,segY*6,"Capture The Flag",2,7)     
+        lable("rectangulo",segX*8,segY*7,"King Of The Hill",3,7)     
+        lable("rectangulo",segX*8,segY*8,"Crazy Ball",4,7)     
 
-        interf.addUIElement(100,290,4,"Modo de juego:",1,1,1,1,0.23,0,1,1,1,1)
+            boton_flecaha("caja_estado",segX*22,segY*4,"Jugadores: ",2,1,1,interf.ini.jugadores)
+
+            interf.addUIElement(segX*22,segY*5,"caja_estado","Modo de juego:",1,1,1,1,interf.ini.modo,0,1,1,1,1)
 
         if interf.ini.modo ==1 then
-            addElement(3,100,320,"Numero de muertes:",1,1,1,2)
+            boton_flecaha("caja_estado",segX*22,segY*8,"Numero de muertes:",1,1,2,interf.ini.numMuertes)
         end  
         if interf.ini.modo ==2 then
-            addElement(6,100,320,"Rondas: ",2,1,4,2)
-            addElement(5,100,350,"Capturas: ",2,1,5,2)
+            boton_flecaha("caja_estado",segX*22,segY*7,"Rondas: ",2,1,4,interf.ini.rondas)
+            boton_flecaha("caja_estado",segX*22,segY*8,"Capturas: ",2,1,5,interf.ini.capturas)
         end 
         if interf.ini.modo ==3 then 
-            addElement(7,100,320,"tiempo: ",2,1,5,2)
-            addElement(6,100,350,"Rondas: ",2,1,4,2)
+            boton_flecaha("caja_estado",segX*22,segY*7,"tiempo: ",2,1,5,interf.ini.time)
+            boton_flecaha("caja_estado",segX*22,segY*8,"Rondas: ",2,1,4,interf.ini.rondas)
         end 
         if interf.ini.modo ==4 then
-            addElement(7,100,320,"tiempo: ",2,1,5,2)
-            addElement(6,100,350,"Rondas: ",2,1,4,2)
+            boton_flecaha("caja_estado",segX*22,segY*7,"tiempo: ",2,1,5,interf.ini.time)
+            boton_flecaha("caja_estado",segX*22,segY*8,"Rondas: ",2,1,4,interf.ini.rondas)
         end 
 
-        addElement(1,100,390,"Jugar",2,10,1,1)
+        lable(1,segX*22,segY*9,"Jugar",2,10)
         
-        interf.addUIElement(100,420,1,"Salir",1,1,1,1,0.23,2,1,1,1,1)        
+        lable(1,segX*22,segY*10,"Salir pantalla inicio",1,2)       
 
         
 end 

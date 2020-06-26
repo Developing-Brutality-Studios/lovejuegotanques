@@ -13,19 +13,20 @@ eventoss={}
 ifr=nil
 
 
-function love.load()
-    love.window.setTitle("Tanks")
-    xw,yw= love.window.getDesktopDimensions(1)
-    love.window.setMode(xw, yw,{fullscreen=true,vsync=true})
-    juego.new(4,xw,yw)
-   
-end
+    function love.load()
+        love.window.setTitle("Tanks")
+        xw,yw= love.window.getDesktopDimensions(1)
+        love.window.setMode(xw, yw,{fullscreen=true,vsync=true})
+        juego.new(4,xw,yw)
+        
+    
+    end
 
-function love.update(dt)
-    --eventos de mouse para elegir la opcion en el menu
-    local joysticks = love.joystick.getJoysticks()
-    juego.mododejuego.proupdate(dt,joysticks[1])
-end
+    function love.update(dt)
+        --eventos de mouse para elegir la opcion en el menu
+        local joysticks = love.joystick.getJoysticks()
+        juego.mododejuego.proupdate(dt,joysticks[1])
+    end
 
 function love.draw()    
     if inter.even == 4 then 
@@ -42,7 +43,9 @@ function love.keypressed(key,scancode,isrepeat)
     if key=="x" then
     love.event.quit(0)
     end
+    if inter.even == 4 then 
     juego.mododejuego.keypressed( key,scancode,isrepeat)
+    end 
 end
 function love.mousereleased(x, y, button)
     inter.mousehandler(x,y,button)      
