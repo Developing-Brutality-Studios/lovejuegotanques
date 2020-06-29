@@ -18,6 +18,7 @@ ifr=nil
         xw,yw= love.window.getDesktopDimensions(1)
         love.window.setMode(xw, yw,{fullscreen=true,vsync=true})
         juego.new(4,xw,yw)
+        inter.video()
         
     
     end
@@ -26,6 +27,7 @@ ifr=nil
         --eventos de mouse para elegir la opcion en el menu
         local joysticks = love.joystick.getJoysticks()
         juego.mododejuego.proupdate(dt,joysticks[1])
+        inter.timer(dt)
     end
 
 function love.draw()    
@@ -33,7 +35,8 @@ function love.draw()
         pantallas[pantallaActual].dibujarCapas()
         --love.graphics.draw(ifr,0,0)
     else
-        inter.dibijarElementos()
+        --        
+       inter.dibijarElementos()
         save.save()
 
     end
