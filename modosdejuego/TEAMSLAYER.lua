@@ -23,32 +23,17 @@ function ts.new(ancc,altt)
     inputUno.izquierda="a"
     inputUno.disparar="q"
     inputUno.mina="e"
-    inputUno.joystick=true
+    inputUno.joystick=false
     inputUno.njoystick=1
     inputDos.adelante="i"
     inputDos.atras="k"
     inputDos.derecha="l"
     inputDos.izquierda="j"
-    inputDos.joystick=true
+    inputDos.joystick=false
     inputDos.njoystick=2
     inputDos.disparar="u"
     inputDos.mina="o"
-    inputTres.adelante="w"
-    inputTres.atras="s"
-    inputTres.derecha="d"
-    inputTres.izquierda="a"
-    inputTres.disparar="q"
-    inputTres.mina="e"
-    inputTres.joystick=false
-    inputTres.njoystick=1
-    inputCuatro.adelante="i"
-    inputCuatro.atras="k"
-    inputCuatro.derecha="l"
-    inputCuatro.izquierda="j"
-    inputCuatro.joystick=false
-    inputCuatro.njoystick=2
-    inputCuatro.disparar="u"
-    inputCuatro.mina="o"
+    
     for i=1,#ts.mapa.puntos do 
        if ts.mapa.puntos[i].val==1 then
          ts.entidades.agregarSpawn(ts.mapa.puntos[i].x,ts.mapa.puntos[i].y)
@@ -58,8 +43,6 @@ function ts.new(ancc,altt)
     end
     ts.entidades.agregarJugador(1,ts.entidades.spawns[2].x,ts.entidades.spawns[2].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputUno)
     ts.entidades.agregarJugador(2,ts.entidades.spawns[1].x,ts.entidades.spawns[1].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputDos)
-    ts.entidades.agregarJugador(3,ts.entidades.spawns[3].x,ts.entidades.spawns[3].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputTres)
-    ts.entidades.agregarJugador(4,ts.entidades.spawns[4].x,ts.entidades.spawns[4].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputCuatro)
     ts.configurarVideo(ts.ancho,ts.alto)
 end
 

@@ -142,7 +142,7 @@ function entidadesRey.eliminarParticulas()
         for i=1,#entidadesRey.proyectiles do
             if entidadesRey.particulas[i]~=nil then
                 if entidadesRey.proyectiles[i].vida<=0 then
-                    table.remove( entidadesBol.particulas,i)
+                    table.remove(entidadesRey.particulas,i)
                 end
             end
         end
@@ -214,6 +214,50 @@ function entidadesRey.actualizarProyectiles(dt)
     end
 end
 
+function entidadesRey.actualizarJugadorMando(dt,pllayer,jjoys)
+    pllayer.posY=pllayer.body:getY()
+    pllayer.posX=pllayer.body:getX()
+    pllayer.posY=pllayer.posY-pllayer.magnitud*math.sin(pllayer.angulo-ssangulo)*dt
+        pllayer.posX=pllayer.posX-pllayer.magnitud*math.cos(pllayer.angulo-ssangulo)*dt
+        --restar valores absolutos podria ser mejor
+        if pllayer.magnitud>0 then
+            pllayer.magnitud=pllayer.magnitud-pllayer.antvelocidad*dt
+        elseif pllayer.magnitud<0 then
+            pllayer.magnitud=pllayer.magnitud+pllayer.antvelocidad*dt
+        end
+        if jjoys[pllayer.input.njoystick]:getAxis(2)<0 and jjoys[pllayer.input.njoystick]:getAxis(2)~=0 then
+            pllayer.magnitud=pllayer.magnitud+pllayer.auvel*dt
+            if pllayer.magnitud>pllayer.velocidad then
+                pllayer.magnitud=pllayer.velocidad
+            end
+        elseif jjoys[pllayer.input.njoystick]:getAxis(2)>0 and jjoys[pllayer.input.njoystick]:getAxis(2)~=0 then
+            pllayer.magnitud=pllayer.magnitud-pllayer.auvel*dt-20*dt
+            if pllayer.magnitud<-pllayer.velocidad then
+                pllayer.magnitud=-pllayer.velocidad
+            end
+        elseif jjoys[pllayer.input.njoystick]:getAxis(1)<0 and jjoys[pllayer.input.njoystick]:getAxis(1)~=0 then
+            pllayer.angulo=pllayer.angulo-math.rad(100)*dt
+        elseif jjoys[pllayer.input.njoystick]:getAxis(1)>0 and jjoys[pllayer.input.njoystick]:getAxis(1)~=0 then
+            pllayer.angulo=pllayer.angulo+math.rad(100)*dt
+        end
+        
+        pllayer.energia=pllayer.energia+pllayer.ratio*dt
+        if pllayer.energia>pllayer.limite then
+            pllayer.energia=pllayer.limite
+        end
+        pllayer.eparticula=pllayer.eparticula+1*dt
+        if pllayer.eparticula>1 then
+            pllayer.eparticula=1
+        end
+        if pllayer.magnitud == pllayer.velocidad and pllayer.eparticula>=1 then
+            entidadesRey.añadirParticulas(pllayer,10)
+            pllayer.eparticula=pllayer.eparticula-9.4*dt
+        end
+        
+        pllayer.body:setX(pllayer.posX)
+        pllayer.body:setY(pllayer.posY)
+end
+
 function entidadesRey.actualizarJugadorTeclado(dt,pllayer)
     pllayer.posY=pllayer.body:getY()
     pllayer.posX=pllayer.body:getX()
@@ -272,7 +316,7 @@ function entidadesRey.actualizarJugadores(dt)
     entidadesRey.matarJugadores()
     for i=1,#entidadesRey.jugadores do
         if entidadesRey.jugadores[i].input.joystick then
-            --entidadesRey.actualizarJugadorMando(dt,entidadesRey.jugadores[i])
+            entidadesRey.actualizarJugadorMando(dt,entidadesRey.jugadores[i])
         else
             entidadesRey.actualizarJugadorTeclado(dt,entidadesRey.jugadores[i])
             --print(joys[1]:getAxis(1))
@@ -280,6 +324,18 @@ function entidadesRey.actualizarJugadores(dt)
     end
 end
 
+function entidadesRey.joystickpressed(jost,boton)
+    for i=1,#entidadesRey.jugadores do
+        if entidadesRey.jugadores[i].input.njoystick== jost:getConnectedIndex() then
+            if boton==1 then
+                entidadesRey.disparar(entidadesRey.jugadores[i])
+            end
+            if boton==2 then
+                entidadesRey.plantarMina(entidadesRey.jugadores[i])
+            end
+        end
+    end
+end
 
 function entidadesRey.estaDentro(exx,eyy,entt,xa,ya)
     local retorno=false
