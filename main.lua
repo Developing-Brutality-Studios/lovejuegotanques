@@ -27,7 +27,9 @@ ifr=nil
         --eventos de mouse para elegir la opcion en el menu
         local joysticks = love.joystick.getJoysticks()
         juego.mododejuego.proupdate(dt,joysticks[1])
-        inter.timer(dt)
+        if inter.even ~= 4 then
+            inter.timer(dt)
+        end 
     end
 
 function love.draw()    

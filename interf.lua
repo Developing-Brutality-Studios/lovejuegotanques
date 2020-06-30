@@ -1,27 +1,31 @@
 interf={tiempo = 0,video,elementos={},even=3,ini={jugadores =1,modo=2,numMuertes=20,capturas=3,rondas=1,time=120}} 
-local font = love.graphics.newFont( "arial_/arial_narrow_7.ttf",28)
+local font = love.graphics.newFont( "arial_/arial_narrow_7.ttf",40)
 local color ={244/255,208/255,63/255}   
 local lista ={"a","b","c","d","q","e","\n","i","k","l","j","u","o"} 
 local segX
 local segY
+local dibujar={x,y,w,h}
 local play = false
+local pint = false
+
 function size()
     w,h= love.window.getDesktopDimensions(1)
     segX = w/40
-    segY = h/20
+    segY = h/40
 end 
 function interf.video()    
+    size()
     interf.video = love.graphics.newVideo("/assets/vid1.ogv")
     
 end 
 function interf.timer(dt)
     interf.tiempo = interf.tiempo +dt
     
-    if interf.tiempo >= 15 then
+   if interf.tiempo >= 15 then
         
         interf.video:play()
         play =true       
-        --interf.tiempo = 0        
+              
     else
         interf.video:pause()
         interf.video:rewind()
@@ -37,22 +41,28 @@ function caja_estado(ele,ref)
     local w, h = t:getDimensions()
     local w2, h2 = r:getDimensions()
 
-    local p = love.graphics.newText( font, ref)            
-            love.graphics.rectangle("line",(ele.x-6)+w*1.1+10,ele.y-2,w2*2.050,h2)
-            love.graphics.draw(p,(ele.x-2)+w*1.1+12,ele.y)            
+    local p = love.graphics.newText( font, ref) 
+            if w2 > segX then
+                love.graphics.rectangle("line",ele.x+w+segX-segX/8,ele.y,w2*1.1,h2)
+                love.graphics.draw(p,ele.x+w+segX,ele.y)
+            else 
+            love.graphics.rectangle("line",ele.x+w+segX,ele.y,segX*1.1,h2)
+            love.graphics.draw(p,ele.x+w+segX+segX/4,ele.y)            
+            end 
+            
 end 
 function dibujarText(ele)   
         --local font = love.graphics.getFont()              
         local t = love.graphics.newText( font, ele.txt)     
         local w, h = t:getDimensions()
         if ele.tipo ~= "imagen"   then
-        love.graphics.draw(t,ele.x,ele.y,0,1,1)  
+         love.graphics.draw(t,ele.x,ele.y,0,1,1)  
         end        
         if ele.tipo == "caja_estado" then
             caja_estado(ele,ele.transp)             
         end       
         if ele.tipo == "rectangulo" then 
-            love.graphics.rectangle(ele.im,ele.x-4,ele.y-4,w*1.050,h*1.1)                         
+            love.graphics.rectangle("line",ele.x-4,ele.y-4,w*1.050,h*1.1)                         
         end
         if ele.tipo == "cajaEstadoControl" then 
             caja_estado(ele,lista[ele.seg]) 
@@ -66,24 +76,26 @@ function dibujarText(ele)
            love.graphics.setColor(255,255,255)         
         end
         if play then
-            love.graphics.setColor(255,255,255,0.5)  
+            love.graphics.setColor(255,255,255,0.1)  
             love.graphics.draw(interf.video,0,0,0,1.2,1.2 )  
             love.graphics.setColor(255,255,255)           
-        end 
-        
+        end
+        if pint == true then 
+            love.graphics.rectangle("fill",dibujar.x,dibujar.y,dibujar.w,dibujar.h)                         
+        end       
         
 end 
 
 function lable(tipo,x,y,val,seg,id,ty)   
-        interf.addUIElement(x,y,tipo,val,1,1,1,1,0.23,id,1,1,'line',seg)  
+        interf.addUIElement(x,y,tipo,val,1,1,1,1,0.23,id,1,1,1,seg)  
 end 
 
 function boton_flecaha(tipo,x,y,val,seg,id,ty,variable)
     local t = love.graphics.newText( font, val)     
     local w, h = t:getDimensions()
     interf.addUIElement(x,y,tipo,val,1,1,1,1,variable,0,1,1,1,1)
-    interf.addUIElement(x+w+100,y,"rectangulo"," + ",1,1,1,ty,0.23,"botonAumento",1,1,'line',1)
-    interf.addUIElement(x+w+100+segX,y,"rectangulo"," - ",1,1,1,ty,0.23,"botonDisminuir",1,1,'line',1)
+    interf.addUIElement(x+w+segX*3,y,"rectangulo"," + ",1,1,1,ty,0.23,"botonAumento",1,1,1,1)
+    interf.addUIElement(x+w+segX*5,y,"rectangulo"," - ",1,1,1,ty,0.23,"botonDisminuir",1,1,1,1)
     --interf.addUIElement(x,y,tipo,frase,escalax,escalay,tx,ty,transp,id,tColorT,tColorF,im,seg)
 end 
 
@@ -91,18 +103,18 @@ function controles(tipo,x,y,val,seg)
     local t = love.graphics.newText( font, val)     
     local w, h = t:getDimensions()
         interf.addUIElement(x,y,tipo,"Adelante",1,1,1,1,0.23,0,1,1,1,seg)
-        interf.addUIElement(x,y+30,tipo,"Atras",1,1,1,1,0.23,0,1,1,1,seg+1)
-        interf.addUIElement(x,y+60,tipo,"Derecha",1,1,1,1,0.23,0,1,1,1,seg+2)
-        interf.addUIElement(x,y+90,tipo,"Izquierda",1,1,1,1,0.23,0,1,1,1,seg+3)
-        interf.addUIElement(x,y+120,tipo,"Disparar",1,1,1,1,0.23,0,1,1,1,seg+4)
-        interf.addUIElement(x,y+150,tipo,"Mina",1,1,1,1,0.23,0,1,1,1,seg+5)
+        interf.addUIElement(x,y+segY*2,tipo,"Atras",1,1,1,1,0.23,0,1,1,1,seg+1)
+        interf.addUIElement(x,y+segY*4,tipo,"Derecha",1,1,1,1,0.23,0,1,1,1,seg+2)
+        interf.addUIElement(x,y+segY*6,tipo,"Izquierda",1,1,1,1,0.23,0,1,1,1,seg+3)
+        interf.addUIElement(x,y+segY*8,tipo,"Disparar",1,1,1,1,0.23,0,1,1,1,seg+4)
+        interf.addUIElement(x,y+segY*10,tipo,"Mina",1,1,1,1,0.23,0,1,1,1,seg+5)
 
-        interf.addUIElement(x+w+80,y,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,'line',seg)
-        interf.addUIElement(x+w+80,y+30,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,'line',seg+1)
-        interf.addUIElement(x+w+80,y+60,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,'line',seg+2)
-        interf.addUIElement(x+w+80,y+90,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,'line',seg+3)
-        interf.addUIElement(x+w+80,y+120,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,'line',seg+4)
-        interf.addUIElement(x+w+80,y+150,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,'line',seg+5)
+        interf.addUIElement(x+w+80,y,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg)
+        interf.addUIElement(x+w+80,y+segY*2,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+1)
+        interf.addUIElement(x+w+80,y+segY*4,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+2)
+        interf.addUIElement(x+w+80,y+segY*6,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+3)
+        interf.addUIElement(x+w+80,y+segY*8,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+4)
+        interf.addUIElement(x+w+80,y+segY*10,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+5)
         --interf.addUIElement(x,y,tipo,frase,escalax,escalay,tx,ty,transp,id,tColorT,tColorF,im,seg)
 end 
 function condicion(ref,paso,sig,condicion)
@@ -132,10 +144,12 @@ function event(x,y,ele)
             w, h = t:getDimensions()  
             interf.tiempo = 0 
             if x > ele.x-4 and x < ele.x+w*1.2 and y > ele.y and y < ele.y+h*1.1 then
+                dibujar.x = ele.x-4
+                dibujar.y = ele.y-2
+                dibujar.w = w
+                dibujar.h = h
                 color ={244/255,208/255,63/255}                
-                if ele.tipo == "rectangulo" then 
-                    --colorear(ele,w,h)
-                end             
+                             
                 if ele.id == 2 then
                     interf.even = ele.seg 
                 end              
@@ -187,7 +201,8 @@ function event(x,y,ele)
                 if ele.id == 10 then
                     interf.even = 4
                 end 
-                if ele.id == "controles" then                    
+                if ele.id == "controles" then 
+                    lista[ele.seg] = '?'                    
                     function love.keyreleased(key)                        
                             local letra = true 
                             for k,v in pairs(lista) do
@@ -245,8 +260,7 @@ function validar()
 
 end
 
-function interf.dibijarElementos()    
-    size()
+function interf.dibijarElementos()        
     validar()
      for i=1,#interf.elementos,1 do       
             dibujarText(interf.elementos[i])                     
@@ -262,58 +276,58 @@ function interf.mousehandler(x, y, button)
 end 
 
 function pagina1()             
-        lable(1,segX*16,segY*7,"Jugar",2,2)
-        lable(1,segX*15,segY*8,"Configuracion",5,2)
-        lable(1,segX*16,segY*9,"Salir",1,14)
+        lable(1,segX*19,segY*15,"Jugar",2,2)
+        lable(1,segX*18,segY*18,"Configuracion",5,2)
+        lable(1,segX*19,segY*21,"Salir",1,14)
         imagen(segX*30,segY*2,0,1,1,1,1,0.7,"/assets/img1.jpg")
        -- imagen(x,y,r,sx,sy,ox,oy,kx,ky,direc)
         love.graphics.setBackgroundColor(46/255,64/255,83/255)        
 end 
 function pagina4()
-        lable(1,segX*14,segY*3,"Jugador 1",2,0)
-        lable(1,segX*22,segY*3,"Jugador 2",2,0)
-        controles("cajaEstadoControl",segX*12,segY*5,"controles1",1)
-        controles("cajaEstadoControl",segX*20,segY*5,"controles2",8)
-        lable(8,segX*14,segY*13,"Salir pantalla inicio",1,2,1,1)  
+        lable(1,segX*14,segY*5,"Jugador 1",2,0)
+        lable(1,segX*22,segY*5,"Jugador 2",2,0)
+        controles("cajaEstadoControl",segX*12,segY*10,"controles1",1)
+        controles("cajaEstadoControl",segX*20,segY*10,"controles2",8)
+        lable(8,segX*14,segY*25,"Salir pantalla inicio",1,2,1,1)  
 
 
 end 
 function pagina3()       
-    lable("rectangulo",segX*14,segY*7,"Seguir jugando",2,10)
-    lable("rectangulo",segX*14,segY*8,"Configuracion",5,2)
-    lable("rectangulo",segX*13,segY*9,"Salir pantalla inicio",1,2)        
+    lable("rectangulo",segX*18,segY*15,"Seguir jugando",2,10)
+    lable("rectangulo",segX*18,segY*18,"Configuracion",5,2)
+    lable("rectangulo",segX*17,segY*21,"Salir pantalla inicio",1,2)        
 end 
 function pagina2()       
    -- lable(tipo,x,y,val,seg,id,ty,tp)
-        lable(1,segX*8,segY*4,"Modo de juego: ",1,0)     
-        lable("rectangulo",segX*8,segY*5,"Team Slayer",1,7)     
-        lable("rectangulo",segX*8,segY*6,"Capture The Flag",2,7)     
-        lable("rectangulo",segX*8,segY*7,"King Of The Hill",3,7)     
-        lable("rectangulo",segX*8,segY*8,"Crazy Ball",4,7)     
+        lable(1,segX*8,segY*10,"Modo de juego: ",1,0)     
+        lable("rectangulo",segX*8,segY*13,"Team Slayer",1,7)     
+        lable("rectangulo",segX*8,segY*16,"Capture The Flag",2,7)     
+        lable("rectangulo",segX*8,segY*19,"King Of The Hill",3,7)     
+        lable("rectangulo",segX*8,segY*22,"Crazy Ball",4,7)     
 
-            boton_flecaha("caja_estado",segX*22,segY*4,"Jugadores: ",2,1,1,interf.ini.jugadores)
+            boton_flecaha("caja_estado",segX*22,segY*11,"Jugadores: ",2,1,1,interf.ini.jugadores)
 
-            interf.addUIElement(segX*22,segY*5,"caja_estado","Modo de juego:",1,1,1,1,interf.ini.modo,0,1,1,1,1)
+            interf.addUIElement(segX*22,segY*14,"caja_estado","Modo de juego:",1,1,1,1,interf.ini.modo,0,1,1,1,1)
 
         if interf.ini.modo ==1 then
-            boton_flecaha("caja_estado",segX*22,segY*8,"Numero de muertes:",1,1,2,interf.ini.numMuertes)
+            boton_flecaha("caja_estado",segX*22,segY*17,"Numero de muertes:",1,1,2,interf.ini.numMuertes)
         end  
         if interf.ini.modo ==2 then
-            boton_flecaha("caja_estado",segX*22,segY*7,"Rondas: ",2,1,4,interf.ini.rondas)
-            boton_flecaha("caja_estado",segX*22,segY*8,"Capturas: ",2,1,5,interf.ini.capturas)
+            boton_flecaha("caja_estado",segX*22,segY*17,"Rondas: ",2,1,4,interf.ini.rondas)
+            boton_flecaha("caja_estado",segX*22,segY*20,"Capturas: ",2,1,5,interf.ini.capturas)
         end 
         if interf.ini.modo ==3 then 
-            boton_flecaha("caja_estado",segX*22,segY*7,"tiempo: ",2,1,5,interf.ini.time)
-            boton_flecaha("caja_estado",segX*22,segY*8,"Rondas: ",2,1,4,interf.ini.rondas)
+            boton_flecaha("caja_estado",segX*22,segY*17,"tiempo: ",2,1,5,interf.ini.time)
+            boton_flecaha("caja_estado",segX*22,segY*20,"Rondas: ",2,1,4,interf.ini.rondas)
         end 
         if interf.ini.modo ==4 then
-            boton_flecaha("caja_estado",segX*22,segY*7,"tiempo: ",2,1,5,interf.ini.time)
-            boton_flecaha("caja_estado",segX*22,segY*8,"Rondas: ",2,1,4,interf.ini.rondas)
+            boton_flecaha("caja_estado",segX*22,segY*17,"tiempo: ",2,1,5,interf.ini.time)
+            boton_flecaha("caja_estado",segX*22,segY*20,"Rondas: ",2,1,4,interf.ini.rondas)
         end 
 
-        lable(1,segX*22,segY*9,"Jugar",2,10)
+        lable(1,segX*19,segY*27,"Jugar",4,2,3)
         
-        lable(1,segX*22,segY*10,"Salir pantalla inicio",1,2)       
+        lable(1,segX*16,segY*30,"Salir pantalla inicio",1,2)       
 
         
 end 
