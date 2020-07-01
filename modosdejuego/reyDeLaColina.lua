@@ -5,8 +5,11 @@ local ancho=0
 local alto=0
 local inputUno={}
 local inputDos={}
-
-function rey.new(ancc,altt)
+local inputTres={}
+local inputCuatro={}
+local pausa=true
+local modo=0
+function rey.new(ancc,altt,nju,tblcontroles)
     rey.mapa.new("../mapas/rey","//assets/terrainTiles_default.png")
     ancho=rey.mapa.tablamapa.width*64
     alto=rey.mapa.tablamapa.height*64
@@ -40,7 +43,7 @@ function rey.new(ancc,altt)
 
     end
 
-    rey.entidades.agregarJugador(1,rey.entidades.spawns[4].x,rey.entidades.spawns[4].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputUno)
+    rey.entidades.agregarJugador(1,rey.entidades.spawns[1].x,rey.entidades.spawns[1].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputUno)
     rey.entidades.agregarJugador(2,rey.entidades.spawns[2].x,rey.entidades.spawns[2].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputDos)
     rey.configurarVideo(rey.ancho,rey.alto)
 end
@@ -95,14 +98,13 @@ function rey.configurarVideo(width,height)
 end
 
 function rey.dibujar()
-
     --aqui tambien podría usar un ciclo
-
     if modo==1 then
         rey.camara(1,1,nil,rey.ancho,rey.alto)
+        print("pelanguero")
     elseif modo==2 then
-        rey.camara(1,2,rey.pantallas[1].canvas,rey.ancho/2,rey.alto)
-        rey.camara(1,1,rey.pantallas[2].canvas,rey.ancho/2,rey.alto)
+        rey.camara(1,1,rey.pantallas[1].canvas,rey.ancho/2,rey.alto)
+        rey.camara(1,2,rey.pantallas[2].canvas,rey.ancho/2,rey.alto)
         love.graphics.draw(rey.pantallas[1].canvas,rey.pantallas[1].x,rey.pantallas[1].y)
         love.graphics.draw(rey.pantallas[2].canvas,rey.pantallas[2].x,rey.pantallas[2].y)
     elseif modo==3 then
@@ -144,9 +146,9 @@ function rey.camara(equipo,jugador,canvasss,llancho,llalto)
     
 end
 
-function rey.dibujar()
+--[[function rey.dibujar()
 rey.camara(1,1,nil)
-end
+end]]
 
 function rey.camara(equipo,jugador,canvasss)
     local xsx=rey.entidades.jugadores[jugador].posX-rey.mdx

@@ -41,8 +41,8 @@ function ts.new(ancc,altt)
         ts.entidades.agregarPowerUp(ts.mapa.puntos[i].x,ts.mapa.puntos[i].y)
        end
     end
-    ts.entidades.agregarJugador(1,ts.entidades.spawns[2].x,ts.entidades.spawns[2].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputUno)
-    ts.entidades.agregarJugador(2,ts.entidades.spawns[1].x,ts.entidades.spawns[1].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputDos)
+    ts.entidades.agregarJugador(1,ts.entidades.spawns[1].x,ts.entidades.spawns[1].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputUno)
+    ts.entidades.agregarJugador(2,ts.entidades.spawns[2].x,ts.entidades.spawns[2].y,"nada",nil,0,300,20,100,"ninguno",21,23,1,inputDos)
     ts.configurarVideo(ts.ancho,ts.alto)
 end
 
@@ -102,8 +102,8 @@ function ts.dibujar()
     if modo==1 then
         ts.camara(1,1,nil,ts.ancho,ts.alto)
     elseif modo==2 then
-        ts.camara(1,2,ts.pantallas[1].canvas,ts.ancho/2,ts.alto)
-        ts.camara(1,1,ts.pantallas[2].canvas,ts.ancho/2,ts.alto)
+        ts.camara(1,1,ts.pantallas[1].canvas,ts.ancho/2,ts.alto)
+        ts.camara(1,2,ts.pantallas[2].canvas,ts.ancho/2,ts.alto)
         love.graphics.draw(ts.pantallas[1].canvas,ts.pantallas[1].x,ts.pantallas[1].y)
         love.graphics.draw(ts.pantallas[2].canvas,ts.pantallas[2].x,ts.pantallas[2].y)
     elseif modo==3 then

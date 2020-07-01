@@ -1,6 +1,9 @@
 local entidadesTS={jugadores={},proyectiles={},powerUps={},spawns={},ancho=850,alto=850,puntuaciones={},particulas={},pantallas={}}
 local tanques ={"//assets/tanques/tank_dark.png","//assets/tanques/tank_red.png","//assets/tanques/tank_green.png","//assets/tanques/tank_blue.png"}
 local proyectiles={"//assets/proyectiles/bulletDark1_outline.png","//assets/proyectiles/bulletRed1_outline.png","//assets/proyectiles/bulletGreen1_outline.png","//assets/proyectiles/bulletGreen1_outline.png"}
+local proyectilesImages={love.graphics.newImage(proyectiles[1]),love.graphics.newImage(proyectiles[2]),love.graphics.newImage(proyectiles[3]),love.graphics.newImage(proyectiles[4])}
+local mascaras={tonumber("1110",2),tonumber("1101",2),tonumber("1011",2),tonumber("0111",2)}
+local categorias={tonumber("0001",2),tonumber("0010",2),tonumber("0100",2),tonumber("1000",2)}
 local mina=love.graphics.newImage("//assets/mina.png")
 local ssangulo=math.rad(90)
 local cbs=60
@@ -84,6 +87,10 @@ function entidadesTS.agregarJugador(nEqu,posX,posY,strimagen,imagen,angulo,magni
     --ju.body:setBullet(true)
     ju.shape=love.physics.newRectangleShape(40,40)
     ju.fixture=love.physics.newFixture(ju.body,ju.shape,1)
+    ju.categoria=categorias[ju.equipo]
+    ju.mascara=mascaras[ju.equipo]
+    ju.fixture:setFilterData(ju.categoria, ju.mascara,0)
+    ju.fixture:setUserData(ju)
     table.insert( entidadesTS.jugadores,ju)
     print(type(entidadesTS.jugadores[#entidadesTS.jugadores].input.adelante))
     print("jugadorAgregado")
@@ -96,7 +103,7 @@ function entidadesTS.agregarProyectil(nEqu,posX,posY,strimagen,imagen,angulo,mag
     ju.posX=posX
     ju.posY=posY
     ju.strimagen=proyectiles[nEqu]
-    ju.imagen=love.graphics.newImage(ju.strimagen)
+    ju.imagen=proyectilesImages[ju.equipo]
     ju.angulo=angulo
     ju.magnitud=magnitud
     ju.danho=danho
@@ -106,9 +113,19 @@ function entidadesTS.agregarProyectil(nEqu,posX,posY,strimagen,imagen,angulo,mag
     ju.medY=medY
     ju.tamanho=tamanho
     ju.tipo=tipo
+    ju.body=love.physics.newBody(world,ju.posX,ju.posY,"dynamic")
+    ju.body:setBullet(true)
     if tipo==2 then
-    ju.imagen=mina
+        ju.imagen=mina
+    else
+        ju.shape=love.physics.newCircleShape(12)
     end
+    ju.shape=love.physics.newRectangleShape(8,14)
+    ju.fixture=love.physics.newFixture(ju.body,ju.shape,1)
+    ju.categoria=categorias[ju.equipo]
+    ju.mascara=mascaras[ju.equipo]
+    ju.fixture:setFilterData(ju.categoria, ju.mascara,0)
+    ju.fixture:setUserData(ju)
     table.insert( entidadesTS.proyectiles,ju)
 end
 
@@ -160,9 +177,7 @@ end
 function entidadesTS.actualizarProyectiles(dt)
     entidadesTS.eliminarParticulas()
     for i=1,#entidadesTS.particulas do
-       
         entidadesTS.particulas[i].vida=entidadesTS.particulas[i].vida-1*dt
-    
     end
     if #entidadesTS.proyectiles>0 then
         for i=1,#entidadesTS.proyectiles do
@@ -177,6 +192,8 @@ function entidadesTS.actualizarProyectiles(dt)
             if entidadesTS.proyectiles[i].tipo ==1 then
             entidadesTS.proyectiles[i].posY=entidadesTS.proyectiles[i].posY-entidadesTS.proyectiles[i].magnitud*math.sin(entidadesTS.proyectiles[i].angulo-ssangulo)*dt
             entidadesTS.proyectiles[i].posX=entidadesTS.proyectiles[i].posX-entidadesTS.proyectiles[i].magnitud*math.cos(entidadesTS.proyectiles[i].angulo-ssangulo)*dt
+            entidadesTS.proyectiles[i].body.setX=entidadesTS.proyectiles[i].posX
+            entidadesTS.proyectiles[i].body.setY=entidadesTS.proyectiles[i].posY
             else
                 entidadesTS.proyectiles[i].vida=entidadesTS.proyectiles[i].vida-1*dt
             end    
