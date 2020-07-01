@@ -60,8 +60,6 @@ function entidadesTS.agregarJugador(nEqu,posX,posY,strimagen,imagen,angulo,magni
     ju.auvel=100
     ju.input=anco
     ju.equipo=nEqu
-    ju.posX=posX
-    ju.posY=posY
     ju.rposX=0
     ju.rposY=0
     ju.strimagen=tanques[nEqu]
@@ -83,12 +81,14 @@ function entidadesTS.agregarJugador(nEqu,posX,posY,strimagen,imagen,angulo,magni
     ju.danhoproyectil=20
     ju.banderaa=false
     ju.band=0
-    ju.body=love.physics.newBody(world,ju.posX,ju.posY,"dynamic")
+    ju.body=love.physics.newBody(world,posX,posY,"dynamic")
     --ju.body:setBullet(true)
     ju.shape=love.physics.newRectangleShape(40,40)
     ju.fixture=love.physics.newFixture(ju.body,ju.shape,1)
     ju.categoria=categorias[ju.equipo]
     ju.mascara=mascaras[ju.equipo]
+    ju.posX=ju.body:getX()
+    ju.posY=ju.body:getY()
     ju.fixture:setFilterData(ju.categoria, ju.mascara,0)
     ju.fixture:setUserData(ju)
     table.insert( entidadesTS.jugadores,ju)
@@ -100,8 +100,6 @@ end
 function entidadesTS.agregarProyectil(nEqu,posX,posY,strimagen,imagen,angulo,magnitud,danho,vida,powerUp,medX,medY,tamanho,tipo)
     local  ju={}
     ju.equipo=nEqu
-    ju.posX=posX
-    ju.posY=posY
     ju.strimagen=proyectiles[nEqu]
     ju.imagen=proyectilesImages[ju.equipo]
     ju.angulo=angulo
@@ -113,19 +111,22 @@ function entidadesTS.agregarProyectil(nEqu,posX,posY,strimagen,imagen,angulo,mag
     ju.medY=medY
     ju.tamanho=tamanho
     ju.tipo=tipo
-    ju.body=love.physics.newBody(world,ju.posX,ju.posY,"dynamic")
+    ju.body=love.physics.newBody(world,posX,posY,"dynamic")
     ju.body:setBullet(true)
     if tipo==2 then
         ju.imagen=mina
-    else
         ju.shape=love.physics.newCircleShape(12)
+    else
+        ju.shape=love.physics.newRectangleShape(8,14)
     end
-    ju.shape=love.physics.newRectangleShape(8,14)
     ju.fixture=love.physics.newFixture(ju.body,ju.shape,1)
     ju.categoria=categorias[ju.equipo]
     ju.mascara=mascaras[ju.equipo]
     ju.fixture:setFilterData(ju.categoria, ju.mascara,0)
     ju.fixture:setUserData(ju)
+    ju.body:setLinearVelocity(-magnitud*math.cos(ju.angulo-ssangulo),-magnitud*math.sin(ju.angulo-ssangulo))
+    ju.posX=ju.body:getX()
+    ju.posY=ju.body:getY()
     table.insert( entidadesTS.proyectiles,ju)
 end
 
@@ -187,13 +188,11 @@ function entidadesTS.actualizarProyectiles(dt)
             end
             end
         end
-
+        
         for i=1,#entidadesTS.proyectiles do 
             if entidadesTS.proyectiles[i].tipo ==1 then
-            entidadesTS.proyectiles[i].posY=entidadesTS.proyectiles[i].posY-entidadesTS.proyectiles[i].magnitud*math.sin(entidadesTS.proyectiles[i].angulo-ssangulo)*dt
-            entidadesTS.proyectiles[i].posX=entidadesTS.proyectiles[i].posX-entidadesTS.proyectiles[i].magnitud*math.cos(entidadesTS.proyectiles[i].angulo-ssangulo)*dt
-            entidadesTS.proyectiles[i].body.setX=entidadesTS.proyectiles[i].posX
-            entidadesTS.proyectiles[i].body.setY=entidadesTS.proyectiles[i].posY
+            entidadesTS.proyectiles[i].posY=entidadesTS.proyectiles[i].body:getY()
+            entidadesTS.proyectiles[i].posX=entidadesTS.proyectiles[i].body:getX()
             else
                 entidadesTS.proyectiles[i].vida=entidadesTS.proyectiles[i].vida-1*dt
             end    
@@ -253,10 +252,8 @@ function entidadesTS.actualizarJugadorMando(dt,pllayer,jjoys)
         pllayer.body:setX(pllayer.posX)
         pllayer.body:setY(pllayer.posY)
 end
-
+--TODO:actualizar controles a fisicas
 function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
-    pllayer.posY=pllayer.body:getY()
-    pllayer.posX=pllayer.body:getX()
     pllayer.posY=pllayer.posY-pllayer.magnitud*math.sin(pllayer.angulo-ssangulo)*dt
         pllayer.posX=pllayer.posX-pllayer.magnitud*math.cos(pllayer.angulo-ssangulo)*dt
         --restar valores absolutos podria ser mejor
@@ -296,8 +293,7 @@ function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
         if pllayer.banderaa then
             entidadesBol.puntuaciones[pllayer.equipo].puntos=entidadesBol.puntuaciones[pllayer.equipo].puntos+1*dt
         end
-        pllayer.body:setX(pllayer.posX)
-        pllayer.body:setY(pllayer.posY)
+        
 end
 
 function entidadesTS.joystickpressed(jost,boton)
@@ -511,6 +507,7 @@ function entidadesTS.dibujar(eex,eey,canv,xa,ya)
             end
     end
     love.graphics.setCanvas()
+    print(entidadesTS.jugadores[1].body:getLinearVelocity())
 end  
 
 return entidadesTS
