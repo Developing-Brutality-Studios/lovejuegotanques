@@ -1,7 +1,10 @@
 interf={tiempo = 0,video,elementos={},even=3,ini={jugadores =1,modo=2,numMuertes=20,capturas=3,rondas=1,time=120}} 
 local font = love.graphics.newFont( "arial_/arial_narrow_7.ttf",40)
 local color ={244/255,208/255,63/255}   
-local lista ={"a","b","c","d","q","e","\n","i","k","l","j","u","o"} 
+--local lista ={["con1"]={adelante = "a","b","c","d","q","e"},{"i","k","l","j","u","o"},{"","","","","",""}} 
+local lista = {{adelante="w",atras="s",derecha="d",izquierda="a",disparar="e",mina="q",joystick=false},
+            {adelante="i",atras="k",derecha="l",izquierda="j",disparar="o",mina="u",joystick=false }}
+            
 local segX
 local segY
 local dibujar={x,y,w,h}
@@ -65,7 +68,9 @@ function dibujarText(ele)
             love.graphics.rectangle("line",ele.x-4,ele.y-4,w*1.050,h*1.1)                         
         end
         if ele.tipo == "cajaEstadoControl" then 
-            caja_estado(ele,lista[ele.seg]) 
+            local i = ele.seg
+            
+            caja_estado(ele,lista[2].adelante) 
         end 
         if ele.tipo == "imagen"   then 
            local image = love.graphics.newImage( ele.seg )
@@ -76,8 +81,13 @@ function dibujarText(ele)
            love.graphics.setColor(255,255,255)         
         end
         if play then
+            local w,h= love.window.getDesktopDimensions(1)
+           local wi, he = interf.video:getDimensions( )
+           local x,y
+           x = w/wi
+           y= h/he
             love.graphics.setColor(255,255,255,0.1)  
-            love.graphics.draw(interf.video,0,0,0,1.2,1.2 )  
+            love.graphics.draw(interf.video,0,0,0,x,y )  
             love.graphics.setColor(255,255,255)           
         end
         if pint == true then 
@@ -99,22 +109,23 @@ function boton_flecaha(tipo,x,y,val,seg,id,ty,variable)
     --interf.addUIElement(x,y,tipo,frase,escalax,escalay,tx,ty,transp,id,tColorT,tColorF,im,seg)
 end 
 
-function controles(tipo,x,y,val,seg)
+function controles(tipo,x,y,val,cont)
     local t = love.graphics.newText( font, val)     
     local w, h = t:getDimensions()
-        interf.addUIElement(x,y,tipo,"Adelante",1,1,1,1,0.23,0,1,1,1,seg)
-        interf.addUIElement(x,y+segY*2,tipo,"Atras",1,1,1,1,0.23,0,1,1,1,seg+1)
-        interf.addUIElement(x,y+segY*4,tipo,"Derecha",1,1,1,1,0.23,0,1,1,1,seg+2)
-        interf.addUIElement(x,y+segY*6,tipo,"Izquierda",1,1,1,1,0.23,0,1,1,1,seg+3)
-        interf.addUIElement(x,y+segY*8,tipo,"Disparar",1,1,1,1,0.23,0,1,1,1,seg+4)
-        interf.addUIElement(x,y+segY*10,tipo,"Mina",1,1,1,1,0.23,0,1,1,1,seg+5)
+ --   inputUno={adelante="w",atras="s",derecha="d",izquierda="a",disparar="e",mina="q",joystick=false
+        interf.addUIElement(x,y,tipo,"Adelante",1,1,1,1,0.23,0,1,1,cont,adelante)
+        interf.addUIElement(x,y+segY*2,tipo,"Atras",1,1,1,1,0.23,0,1,1,cont,atras)
+        interf.addUIElement(x,y+segY*4,tipo,"Derecha",1,1,1,1,0.23,0,1,1,cont,derecha)
+        interf.addUIElement(x,y+segY*6,tipo,"Izquierda",1,1,1,1,0.23,0,1,1,cont,izquierda)
+        interf.addUIElement(x,y+segY*8,tipo,"Disparar",1,1,1,1,0.23,0,1,1,cont,disparar)
+        interf.addUIElement(x,y+segY*10,tipo,"Mina",1,1,1,1,0.23,0,1,1,cont,disparar)
 
-        interf.addUIElement(x+w+80,y,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg)
-        interf.addUIElement(x+w+80,y+segY*2,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+1)
-        interf.addUIElement(x+w+80,y+segY*4,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+2)
-        interf.addUIElement(x+w+80,y+segY*6,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+3)
-        interf.addUIElement(x+w+80,y+segY*8,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+4)
-        interf.addUIElement(x+w+80,y+segY*10,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,1,seg+5)
+        interf.addUIElement(x+w+80,y,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,cont,adelante)
+        interf.addUIElement(x+w+80,y+segY*2,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,cont,atras)
+        interf.addUIElement(x+w+80,y+segY*4,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,cont,derecha)
+        interf.addUIElement(x+w+80,y+segY*6,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,cont,izquierda)
+        interf.addUIElement(x+w+80,y+segY*8,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,cont,disparar)
+        interf.addUIElement(x+w+80,y+segY*10,"rectangulo","<>",1,1,1,1,0.23,"controles",1,1,cont,disparar)
         --interf.addUIElement(x,y,tipo,frase,escalax,escalay,tx,ty,transp,id,tColorT,tColorF,im,seg)
 end 
 function condicion(ref,paso,sig,condicion)
@@ -202,16 +213,19 @@ function event(x,y,ele)
                     interf.even = 4
                 end 
                 if ele.id == "controles" then 
-                    lista[ele.seg] = '?'                    
+                    local t = ele.seg
+                    lista[ele.im].t = '?'                    
                     function love.keyreleased(key)                        
                             local letra = true 
                             for k,v in pairs(lista) do
-                                if lista[k] == key then 
-                                    letra = false
+                                for i =1 , 6 do
+                                    if lista[k].i == key then 
+                                        letra = false
+                                    end 
                                 end 
                             end 
                             if letra then
-                                lista[ele.seg] = key   
+                                lista[ele.im].t = key   
                             end 
                     end
                     
@@ -284,10 +298,11 @@ function pagina1()
         love.graphics.setBackgroundColor(46/255,64/255,83/255)        
 end 
 function pagina4()
-        lable(1,segX*14,segY*5,"Jugador 1",2,0)
+        lable(1,segX*12,segY*5,"Jugador 1",2,0)
         lable(1,segX*22,segY*5,"Jugador 2",2,0)
-        controles("cajaEstadoControl",segX*12,segY*10,"controles1",1)
-        controles("cajaEstadoControl",segX*20,segY*10,"controles2",8)
+        controles("cajaEstadoControl",segX*9,segY*10,"controles1",1)
+        controles("cajaEstadoControl",segX*20,segY*10,"controles2",2)
+        controles("cajaEstadoControl",segX*20,segY*10,"controles2",3)
         lable(8,segX*14,segY*25,"Salir pantalla inicio",1,2,1,1)  
 
 
