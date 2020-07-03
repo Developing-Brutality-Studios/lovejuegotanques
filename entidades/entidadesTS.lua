@@ -100,8 +100,10 @@ end
 function entidadesTS.agregarProyectil(nEqu,posX,posY,strimagen,imagen,angulo,magnitud,danho,vida,powerUp,medX,medY,tamanho,tipo)
     local  ju={}
     ju.equipo=nEqu
+    ju.posX=posX
+    ju.posY=posY
     ju.strimagen=proyectiles[nEqu]
-    ju.imagen=proyectilesImages[ju.equipo]
+    ju.imagen=love.graphics.newImage(ju.strimagen)
     ju.angulo=angulo
     ju.magnitud=magnitud
     ju.danho=danho
@@ -178,7 +180,9 @@ end
 function entidadesTS.actualizarProyectiles(dt)
     entidadesTS.eliminarParticulas()
     for i=1,#entidadesTS.particulas do
+       
         entidadesTS.particulas[i].vida=entidadesTS.particulas[i].vida-1*dt
+    
     end
     if #entidadesTS.proyectiles>0 then
         for i=1,#entidadesTS.proyectiles do
@@ -188,11 +192,11 @@ function entidadesTS.actualizarProyectiles(dt)
             end
             end
         end
-        
+
         for i=1,#entidadesTS.proyectiles do 
             if entidadesTS.proyectiles[i].tipo ==1 then
-            entidadesTS.proyectiles[i].posY=entidadesTS.proyectiles[i].body:getY()
-            entidadesTS.proyectiles[i].posX=entidadesTS.proyectiles[i].body:getX()
+            entidadesTS.proyectiles[i].posY=entidadesTS.proyectiles[i].posY-entidadesTS.proyectiles[i].magnitud*math.sin(entidadesTS.proyectiles[i].angulo-ssangulo)*dt
+            entidadesTS.proyectiles[i].posX=entidadesTS.proyectiles[i].posX-entidadesTS.proyectiles[i].magnitud*math.cos(entidadesTS.proyectiles[i].angulo-ssangulo)*dt
             else
                 entidadesTS.proyectiles[i].vida=entidadesTS.proyectiles[i].vida-1*dt
             end    
@@ -206,7 +210,7 @@ function entidadesTS.actualizarProyectiles(dt)
         end
     end
 end
-
+--[[
 function entidadesTS.actualizarJugadorMando(dt,pllayer,jjoys)
     pllayer.posY=pllayer.body:getY()
     pllayer.posX=pllayer.body:getX()
@@ -252,25 +256,29 @@ function entidadesTS.actualizarJugadorMando(dt,pllayer,jjoys)
         pllayer.body:setX(pllayer.posX)
         pllayer.body:setY(pllayer.posY)
 end
---TODO:actualizar controles a fisicas
+]]
 function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
-    pllayer.posY=pllayer.posY-pllayer.magnitud*math.sin(pllayer.angulo-ssangulo)*dt
-        pllayer.posX=pllayer.posX-pllayer.magnitud*math.cos(pllayer.angulo-ssangulo)*dt
+        local limiteVelocidad=10000000
+        local tempx,tempy=pllayer.body:getLinearVelocity()
+        local magnitud=math.sqrt((tempx*tempx)+(tempy*tempy))
         --restar valores absolutos podria ser mejor
-        if pllayer.magnitud>0 then
-            pllayer.magnitud=pllayer.magnitud-pllayer.antvelocidad*dt
-        elseif pllayer.magnitud<0 then
-            pllayer.magnitud=pllayer.magnitud+pllayer.antvelocidad*dt
+        --[[if tempx>0 then
+            pllayer.body:applyLinearImpulse(-1*dt,0)
+        else 
+            pllayer.body:applyLinearImpulse(1*dt,0)
         end
+        if tempy>0 then
+            pllayer.body:applyLinearImpulse(0,-1*dt)
+        else 
+            pllayer.body:applyLinearImpulse(0,1*dt)
+        end]]
         if love.keyboard.isDown(pllayer.input.adelante) then
-            pllayer.magnitud=pllayer.magnitud+pllayer.auvel*dt
-            if pllayer.magnitud>pllayer.velocidad then
-                pllayer.magnitud=pllayer.velocidad
+            if magnitud<limiteVelocidad then 
+                pllayer.body:applyLinearImpulse((-200)*math.cos(pllayer.angulo),(-200)*math.sin(pllayer.angulo))
             end
         elseif love.keyboard.isDown(pllayer.input.atras) then
-            pllayer.magnitud=pllayer.magnitud-pllayer.auvel*dt-20*dt
-            if pllayer.magnitud<-pllayer.velocidad then
-                pllayer.magnitud=-pllayer.velocidad
+            if magnitud<limiteVelocidad then 
+                pllayer.body:applyLinearImpulse((200)*math.cos(pllayer.angulo),(200)*math.sin(pllayer.angulo))
             end
         elseif love.keyboard.isDown(pllayer.input.izquierda) then
             pllayer.angulo=pllayer.angulo-math.rad(100)*dt
@@ -293,7 +301,6 @@ function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
         if pllayer.banderaa then
             entidadesBol.puntuaciones[pllayer.equipo].puntos=entidadesBol.puntuaciones[pllayer.equipo].puntos+1*dt
         end
-        
 end
 
 function entidadesTS.joystickpressed(jost,boton)
@@ -316,12 +323,12 @@ end
 function entidadesTS.actualizarJugadores(dt,joys)
     entidadesTS.matarJugadores()
     for i=1,#entidadesTS.jugadores do
-        if entidadesTS.jugadores[i].input.joystick then
+        --[[if entidadesTS.jugadores[i].input.joystick then
             entidadesTS.actualizarJugadorMando(dt,entidadesTS.jugadores[i],joys)
-        else
+        else]]
             entidadesTS.actualizarJugadorTeclado(dt,entidadesTS.jugadores[i])
             --print(joys[1]:getAxis(2))
-        end
+        --end
     end
 end
 
@@ -507,7 +514,6 @@ function entidadesTS.dibujar(eex,eey,canv,xa,ya)
             end
     end
     love.graphics.setCanvas()
-    print(entidadesTS.jugadores[1].body:getLinearVelocity())
 end  
 
 return entidadesTS
