@@ -116,6 +116,7 @@ function entidadesTS.agregarProyectil(nEqu,posX,posY,strimagen,imagen,angulo,mag
     ju.tipo=tipo
     ju.body=love.physics.newBody(world,posX,posY,"dynamic")
     ju.body:setBullet(true)
+    ju.body:setMass(1)
     if tipo==2 then
         ju.imagen=mina
         ju.shape=love.physics.newCircleShape(12)
@@ -135,8 +136,8 @@ end
 
 function entidadesTS.disparar(rrr)
     --crea un proyectil con el angulo y direccion
-    local px=rrr.posX-24*math.cos(rrr.angulo-ssangulo)
-    local py=rrr.posY-24*math.sin(rrr.angulo-ssangulo)
+    local px=rrr.body:getX()-24*math.cos(rrr.angulo-ssangulo)
+    local py=rrr.body:getY()-24*math.sin(rrr.angulo-ssangulo)
     --nEqu,posX,posY,strimagen,imagen,angulo,magnitud,danho,vida,powerUp,medX,medY,tamanho
     if rrr.energia>rrr.danhoproyectil then
         entidadesTS.agregarProyectil(rrr.equipo,px,py,1,nil,rrr.angulo,300,rrr.danhoproyectil,10,"ninguno",4,7,1,1)
@@ -146,7 +147,7 @@ end
 
 function entidadesTS.plantarMina(rrr)
     if rrr.energia>rrr.danhomina then
-        entidadesTS.agregarProyectil(rrr.equipo,rrr.posX,rrr.posY,1,nil,0,0,rrr.danhomina,10,"ninguno",12,12,1,2)
+        entidadesTS.agregarProyectil(rrr.equipo,rrr.body:getX(),rrr.body:getY(),1,nil,0,0,rrr.danhomina,10,"ninguno",12,12,1,2)
         rrr.energia=rrr.energia-rrr.danhomina
     end
 end
@@ -263,16 +264,7 @@ function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
         local tempx,tempy=pllayer.body:getLinearVelocity()
         local magnitud=math.sqrt((tempx*tempx)+(tempy*tempy))
         --restar valores absolutos podria ser mejor
-        if tempx>0 then
-            pllayer.body:applyLinearImpulse(-30*dt,0)
-        else
-            pllayer.body:applyLinearImpulse(30*dt,0)
-        end
-        if tempy>0 then
-            pllayer.body:applyLinearImpulse(0,-30*dt)
-        else
-            pllayer.body:applyLinearImpulse(0,30*dt)
-        end
+        
         if love.keyboard.isDown(pllayer.input.adelante) then
             if magnitud<limiteVelocidad then 
                 pllayer.body:applyLinearImpulse((-250)*math.cos(pllayer.angulo-ssangulo)*dt,(-250)*math.sin(pllayer.angulo-ssangulo)*dt)
@@ -285,6 +277,27 @@ function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
             pllayer.angulo=pllayer.angulo-math.rad(100)*dt
         elseif love.keyboard.isDown(pllayer.input.derecha) then
             pllayer.angulo=pllayer.angulo+math.rad(100)*dt
+            if tempx>0 then
+                pllayer.body:applyLinearImpulse(-30*dt,0)
+            else
+                pllayer.body:applyLinearImpulse(30*dt,0)
+            end
+            if tempy>0 then
+                pllayer.body:applyLinearImpulse(0,-30*dt)
+            else
+                pllayer.body:applyLinearImpulse(0,30*dt)
+            end
+        else
+        if tempx>0 then
+            pllayer.body:applyLinearImpulse(-100*dt,0)
+        else
+            pllayer.body:applyLinearImpulse(100*dt,0)
+        end
+        if tempy>0 then
+            pllayer.body:applyLinearImpulse(0,-100*dt)
+        else
+            pllayer.body:applyLinearImpulse(0,100*dt)
+        end
         end
         
         pllayer.energia=pllayer.energia+pllayer.ratio*dt
@@ -348,7 +361,7 @@ function entidadesTS.estaDentro(exx,eyy,entt,xa,ya)
     local erer=entt.posX>exx and entt.posX<exx+xa
     local rr=entt.posY>eyy and entt.posY<eyy+ya
     if rr and erer then
-    retorno=true
+        retorno=true
     end
 
     return retorno
@@ -367,24 +380,7 @@ end
 
 function entidadesTS.detectarColision(dt)
     --jugadores v proyectiles
-    for i=1,#entidadesTS.jugadores do
-        for j=1,#entidadesTS.proyectiles do
-            if entidadesTS.proyectiles[j].equipo~=entidadesTS.jugadores[i].equipo then
-                local corX=entidadesTS.jugadores[i].posX-mcbs
-                local corY=entidadesTS.jugadores[i].posY-mcbs
-                local sx=corX<entidadesTS.proyectiles[j].posX and corX+cbs>entidadesTS.proyectiles[j].posX
-                local sy=corY<entidadesTS.proyectiles[j].posY and corY+cbs>entidadesTS.proyectiles[j].posY
-                if sx and sy then
-                    entidadesTS.jugadores[i].vida=entidadesTS.jugadores[i].vida-entidadesTS.proyectiles[j].danho
-                    entidadesTS.jugadores[i].eqimpac=entidadesTS.proyectiles[j].equipo
-                    --print(entidadesTS.jugadores[i].eqimpac)
-                    print(entidadesTS.jugadores[i].vida)
-                    entidadesTS.proyectiles[j].vida=entidadesTS.proyectiles[j].vida-entidadesTS.jugadores[i].danho
-                    print(entidadesTS.jugadores[i].vida)
-                end
-            end
-        end
-    end
+    
     --jugadores v powerUPs
     for i=1,#entidadesTS.jugadores do
         for j=1,#entidadesTS.powerUps do
