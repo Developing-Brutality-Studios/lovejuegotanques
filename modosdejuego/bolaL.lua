@@ -13,7 +13,7 @@ function bolaL.new(ancc,altt)
     bolaL.mdx=math.floor(ancc/2)
     bolaL.mdy=math.floor(altt/2)
     local cont =require "/save/controles"    
-    inputUno.adelante="w"
+    inputUno.adelante="w"    
     inputUno.atras="s"
     inputUno.derecha="d"
     inputUno.izquierda="a"
