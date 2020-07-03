@@ -127,14 +127,14 @@ function ts.dibujar()
 end
 
 function ts.camara(equipo,jugador,canvasss,llancho,llalto)
-    local xsx=ts.entidades.jugadores[jugador].posX-math.floor(llancho/2)
+    local xsx=ts.entidades.jugadores[jugador].body:getX()-math.floor(llancho/2)
     --print(ts.entidades.jugadores[2].vida)
     if xsx<0 then 
         xsx=0
     elseif xsx>ancho-llancho then
         xsx=ancho-llancho
     end
-    local ysy=ts.entidades.jugadores[jugador].posY-math.floor(llalto/2)
+    local ysy=ts.entidades.jugadores[jugador].body:getY()-math.floor(llalto/2)
     if ysy<0 then 
         ysy=0
     elseif ysy>alto-llalto then

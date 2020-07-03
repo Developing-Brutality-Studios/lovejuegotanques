@@ -82,6 +82,7 @@ function entidadesTS.agregarJugador(nEqu,posX,posY,strimagen,imagen,angulo,magni
     ju.banderaa=false
     ju.band=0
     ju.body=love.physics.newBody(world,posX,posY,"dynamic")
+    ju.body:setMass(20)
     --ju.body:setBullet(true)
     ju.shape=love.physics.newRectangleShape(40,40)
     ju.fixture=love.physics.newFixture(ju.body,ju.shape,1)
@@ -258,27 +259,27 @@ function entidadesTS.actualizarJugadorMando(dt,pllayer,jjoys)
 end
 ]]
 function entidadesTS.actualizarJugadorTeclado(dt,pllayer)
-        local limiteVelocidad=10000000
+        local limiteVelocidad=100
         local tempx,tempy=pllayer.body:getLinearVelocity()
         local magnitud=math.sqrt((tempx*tempx)+(tempy*tempy))
         --restar valores absolutos podria ser mejor
-        --[[if tempx>0 then
-            pllayer.body:applyLinearImpulse(-1*dt,0)
-        else 
-            pllayer.body:applyLinearImpulse(1*dt,0)
+        if tempx>0 then
+            pllayer.body:applyLinearImpulse(-30*dt,0)
+        else
+            pllayer.body:applyLinearImpulse(30*dt,0)
         end
         if tempy>0 then
-            pllayer.body:applyLinearImpulse(0,-1*dt)
-        else 
-            pllayer.body:applyLinearImpulse(0,1*dt)
-        end]]
+            pllayer.body:applyLinearImpulse(0,-30*dt)
+        else
+            pllayer.body:applyLinearImpulse(0,30*dt)
+        end
         if love.keyboard.isDown(pllayer.input.adelante) then
             if magnitud<limiteVelocidad then 
-                pllayer.body:applyLinearImpulse((-200)*math.cos(pllayer.angulo),(-200)*math.sin(pllayer.angulo))
+                pllayer.body:applyLinearImpulse((-250)*math.cos(pllayer.angulo-ssangulo)*dt,(-250)*math.sin(pllayer.angulo-ssangulo)*dt)
             end
         elseif love.keyboard.isDown(pllayer.input.atras) then
             if magnitud<limiteVelocidad then 
-                pllayer.body:applyLinearImpulse((200)*math.cos(pllayer.angulo),(200)*math.sin(pllayer.angulo))
+                pllayer.body:applyLinearImpulse((250)*math.cos(pllayer.angulo-ssangulo)*dt,(250)*math.sin(pllayer.angulo-ssangulo)*dt)
             end
         elseif love.keyboard.isDown(pllayer.input.izquierda) then
             pllayer.angulo=pllayer.angulo-math.rad(100)*dt
@@ -334,8 +335,8 @@ end
 
 function entidadesTS.añadirParticulas(jugadorr,duracion)
     local ju={}
-    ju.posX=jugadorr.posX
-    ju.posY=jugadorr.posY
+    ju.posX=jugadorr.body:getX()
+    ju.posY=jugadorr.body:getY()
     ju.angulo=jugadorr.angulo
     ju.vida=duracion
     ju.vidamax=duracion+0
@@ -346,6 +347,17 @@ function entidadesTS.estaDentro(exx,eyy,entt,xa,ya)
     local retorno=false
     local erer=entt.posX>exx and entt.posX<exx+xa
     local rr=entt.posY>eyy and entt.posY<eyy+ya
+    if rr and erer then
+    retorno=true
+    end
+
+    return retorno
+end
+
+function entidadesTS.estaDentrod(exx,eyy,entt,xa,ya)
+    local retorno=false
+    local erer=entt.body:getX()>exx and entt.body:getX()<exx+xa
+    local rr=entt.body:getY()>eyy and entt.body:getY()<eyy+ya
     if rr and erer then
     retorno=true
     end
@@ -506,9 +518,9 @@ function entidadesTS.dibujar(eex,eey,canv,xa,ya)
 
     --dibuja a los jugadores
     for i=1,#entidadesTS.jugadores do
-            if entidadesTS.estaDentro(eex,eey,entidadesTS.jugadores[i],xa,ya) then
-                local fx=entidadesTS.jugadores[i].posX-eex
-                local fy=entidadesTS.jugadores[i].posY-eey
+            if entidadesTS.estaDentrod(eex,eey,entidadesTS.jugadores[i],xa,ya) then
+                local fx=entidadesTS.jugadores[i].body:getX()-eex
+                local fy=entidadesTS.jugadores[i].body:getY()-eey
                 love.graphics.draw(entidadesTS.jugadores[i].imagen,fx,fy,entidadesTS.jugadores[i].angulo,entidadesTS.jugadores[i].tamanho,entidadesTS.jugadores[i].tamanho,entidadesTS.jugadores[i].medX,entidadesTS.jugadores[i].medY,0,0)
                 --dibuja la caja de colision
             end
